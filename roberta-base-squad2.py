@@ -1,4 +1,5 @@
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+import torch
 
 # Load a compatible model for question answering
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
@@ -10,7 +11,7 @@ def preprocess_function(examples):
     contexts = [c.strip() for c in examples["context"]]
     return tokenizer(questions, contexts, truncation=True, padding="max_length", max_length=384)
 
-tokenized_squad = squad.map(preprocess_function, batched=True, remove_columns=squad["train"].column_names)
+#tokenized_squad = squad.map(preprocess_function, batched=True, remove_columns=squad["train"].column_names)
 
 # Create DataLoader for the evaluation dataset
 from torch.utils.data import DataLoader
