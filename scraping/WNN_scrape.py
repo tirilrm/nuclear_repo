@@ -30,6 +30,7 @@ def scrape_WNN_article(url):
                 text.append(line)
     return {
         'url': url,
+        'magasine': 'World Nuclear News',
         'title': title,
         'author': None,
         'date': date,
