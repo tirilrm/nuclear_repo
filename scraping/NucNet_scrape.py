@@ -16,10 +16,10 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 }
 
-def scrape_NN_article(url, sesh):
+def scrape_NN_article(url, session):
     print(url)
 
-    sesh = requests.get(url, headers=headers)
+    response = session.get(url, headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
     
     try:
@@ -72,7 +72,7 @@ else:
     raise Exception('Login failed')
 
 # Next, scrape
-articles = [scrape_NN_article(url, session) for url in urls[0] if url]
+articles = [scrape_NN_article(url, session) for url in urls if url]
 
 end_time = time.time()
 
