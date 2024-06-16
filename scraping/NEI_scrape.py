@@ -1,11 +1,10 @@
-# NCE print test
-import requests
-from bs4 import BeautifulSoup
-
-# WNN print test
+# NEI print test
 import requests
 import json
 from bs4 import BeautifulSoup
+import time
+
+start_time = time.time()
 
 f = open('NEI_urls.txt', 'r')
 urls_raw = f.read()
@@ -16,6 +15,8 @@ headers = {
 }
 
 def scrape_NEI_article(url):
+    print(url)
+
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
     
@@ -25,20 +26,20 @@ def scrape_NEI_article(url):
         title = None
     
     try:
-        date = soup.find('span', class_='tie-date').get_text()
+        date = soup.find('div', class_='article-header__content').find('span', class_='date-published').text
     except AttributeError:
         date = None
     
     try:
-        author = soup.find('a', class_='author url fn').text
+        author = soup.find('div', class_='article-header__content').find('span', class_='article-author').find('a')['href']
     except AttributeError:
         author = None
         
     try:
-        article_all = soup.find('div', class_= 'entry').get_text(separator="\n", strip=True)
+        article_all = soup.find('section', class_= 'article-content').get_text(separator="\n", strip=True)
         text_content = article_all.split('\n')
+        unwanteds = ["share this article", "sign up", "image courtesy of", "partner content", "copy link", "share on", 'give your business an edge']
         text = []
-        unwanteds = ['to receive new civil engineer\'s', 'like what you\'ve read?']
         if text_content:
             for line in text_content:
                 if not any(unwanted in line.lower() \
@@ -49,14 +50,18 @@ def scrape_NEI_article(url):
         text = None
     return {
         'url': url,
-        'magasine': 'World Nuclear News',
+        'magasine': 'Nuclear Engineering International',
         'title': title,
         'author': author,
         'date': date,
         'text': text
     }
 
-articles = [scrape_NEI_article(url) for url in urls]
+articles = [scrape_NEI_article(url) for url in urls[2:] if url]
+
+end_time = time.time()
+
+print(f'Finished scrape, took {end_time-start_time:.2f} seconds')
 
 with open('NEI_articles.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)

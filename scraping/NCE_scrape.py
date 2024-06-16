@@ -1,11 +1,10 @@
 # NCE print test
 import requests
-from bs4 import BeautifulSoup
-
-# WNN print test
-import requests
 import json
 from bs4 import BeautifulSoup
+import time
+
+start_time = time.time()
 
 f = open('NCE_urls.txt', 'r')
 urls_raw = f.read()
@@ -16,16 +15,29 @@ headers = {
 }
 
 def scrape_NCE_article(url):
+    print(url)
+
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
     
     try:
         title = soup.find('h1', class_='name entry-title').text
+    except AttributeError:
+        title = None
+    
+    try:
         date = soup.find('span', class_='tie-date').get_text()
+    except AttributeError:
+        date = None
+    
+    try:
         author = soup.find('a', class_='author url fn').text
+    except AttributeError:
+        author = None
+
+    try:
         article_all = soup.find('div', class_= 'entry').get_text(separator="\n", strip=True)
         text_content = article_all.split('\n')
-
         text = []
         unwanteds = ['to receive new civil engineer\'s', 'like what you\'ve read?']
         if text_content:
@@ -35,18 +47,21 @@ def scrape_NCE_article(url):
                             and len(line) > 25:
                     text.append(line)
     except AttributeError:
-        print('Couldnt fetch', url)
-        pass
+        text = None
     return {
         'url': url,
-        'magasine': 'World Nuclear News',
+        'magasine': 'New Civil Engineer',
         'title': title,
         'author': author,
         'date': date,
         'text': text
     }
 
-articles = [scrape_NCE_article(url) for url in urls]
+articles = [scrape_NCE_article(url) for url in urls if url]
+
+end_time = time.time()
+
+print(f'Finished scrape, took {end_time-start_time} seconds')
 
 with open('NCE_articles.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)
