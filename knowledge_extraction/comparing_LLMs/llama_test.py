@@ -16,5 +16,9 @@ for sentence in sentences:
     print(sentence, classifier(sentence, candidate_labels=['education', 'business', 'science', 'politics']))'''
 
 # Generation
-generator = pipeline('text-generation', model='meta-llama/Meta-Llama-3-8B')
-generator('I am better. I am a God. You are merely')
+generator = pipeline('text-generation', model='distilgpt2')
+generator(
+    'I am better. I am a god. You are merely', 
+    max_length=150, 
+    num_return_sequences=2
+)
