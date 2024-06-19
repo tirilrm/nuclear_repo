@@ -1,0 +1,18 @@
+{
+    "BERT": {
+        "Accuracy": 1.0,
+        "Time": 0.7171542644500732
+    },
+    "DistilBERT": {
+        "Accuracy": 1.0,
+        "Time": 0.6332879066467285
+    },
+    "AlBERT": {
+        "Accuracy": 1.0,
+        "Time": 0.5778219699859619
+    },
+    "RoBERTa": {
+        "Accuracy": 1.0,
+        "Time": 0.5761399269104004
+    }
+}
