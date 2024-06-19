@@ -2,8 +2,7 @@ from transformers import pipeline
 
 sentences = ['Kant was a remarkable figure',
              'Water is made of hydrogen and oxygen',
-             'The capital of Norway is Oslo']
-
+             'The capital of Sweden is Stockholm']
 
 '''# Sentiment analysis
 classifier = pipeline('sentiment-analysis')
