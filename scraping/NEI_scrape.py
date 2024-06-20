@@ -6,7 +6,7 @@ import time
 
 start_time = time.time()
 
-f = open('NEI_urls.txt', 'r')
+f = open('urls/NEI_urls.txt', 'r')
 urls_raw = f.read()
 urls = urls_raw.split('\n')
 
@@ -34,9 +34,14 @@ def scrape_NEI_article(url):
         author = soup.find('div', class_='article-header__content').find('span', class_='article-author').find('a')['href']
     except AttributeError:
         author = None
+
+    try:
+        header_text = soup.find('p', class_='article-header__excerpt').get_text()
+    except AttributeError:
+        header_text = ''
         
     try:
-        article_all = soup.find('section', class_= 'article-content').get_text(separator="\n", strip=True)
+        article_all = header_text + soup.find('section', class_= 'article-content').get_text(separator="\n", strip=True)
         text_content = article_all.split('\n')
         unwanteds = ["share this article", "sign up", "image courtesy of", "partner content", "copy link", "share on", 'give your business an edge']
         text = []
@@ -63,5 +68,5 @@ end_time = time.time()
 
 print(f'Finished scrape, took {end_time-start_time:.2f} seconds')
 
-with open('NEI_articles.json', 'w', encoding='utf-8') as file:
+with open('NEI_articles_NEW.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)

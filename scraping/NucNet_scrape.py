@@ -6,7 +6,7 @@ import time
 
 start_time = time.time()
 
-f = open('NucNet_urls.txt', 'r')
+f = open('urls/NucNet_urls.txt', 'r')
 urls_raw = f.read()
 urls = urls_raw.split('\n')
 
