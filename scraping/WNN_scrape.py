@@ -37,7 +37,7 @@ def scrape_WNN_article(url):
         'text': text
     }
 
-articles = [scrape_WNN_article(url) for url in urls]
+articles = [scrape_WNN_article(url) for url in urls if url]
 
 with open('WNN_articles.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)

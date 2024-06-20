@@ -48,7 +48,7 @@ def scrape_NEI_article(url):
         if text_content:
             for line in text_content:
                 if not any(unwanted in line.lower() \
-                        for unwanted in unwanteds) \
+                    for unwanted in unwanteds) \
                             and len(line) > 25:
                     text.append(line)
     except AttributeError:

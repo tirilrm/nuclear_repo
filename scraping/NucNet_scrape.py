@@ -34,12 +34,26 @@ def scrape_NN_article(url, session):
     except AttributeError:
         date = None
         author = None
+    
+    try:
+        captions = []
+        figures = soup.find_all('figure')
+        for figure in figures:
+            figcaption = figure.find('figcaption')
+            if figcaption:
+                captions.append(figcaption.text)
+
+    except AttributeError:
+        captions = []
         
     try:
        text_divs = soup.find('article', class_='article-style').find_all('div')
-       text = [p.get_text() for div in text_divs for p in div.find_all('p')]
+       text = [p.get_text() for div in text_divs for p in div.find_all('p') if p.get_text() != '']
     except AttributeError:
-        text = None
+        text = []
+    
+    text = text + captions
+
     return {
         'url': url,
         'magasine': 'NucNet',
@@ -71,12 +85,12 @@ if response.ok and 'logout' in response.text.lower():
 else:
     raise Exception('Login failed')
 
-# Next, scrape
+# Scrape
 articles = [scrape_NN_article(url, session) for url in urls if url]
 
 end_time = time.time()
 
 print(f'Finished scrape, took {end_time-start_time:.2f} seconds')
 
-with open('NucNet_articles.json', 'w', encoding='utf-8') as file:
+with open('NucNet_articles_NEW.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)
