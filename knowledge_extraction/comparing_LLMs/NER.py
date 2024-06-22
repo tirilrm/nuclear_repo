@@ -11,6 +11,7 @@ models = {
     'RoBERTa': 'Jean-Baptiste/roberta-large-ner-english'
 }
 
+
 example = wikiann['test']['tokens'][0]
 
 def join_tokens(tokens):
@@ -23,7 +24,7 @@ def join_tokens(tokens):
     string = string.strip()
     return string
 
-def test_model(model_name, dataset):
+def test_model(model_name, wiki_dataset):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     ner_pipeline = pipeline('ner', model=model_name, tokenizer=tokenizer)
 
@@ -32,13 +33,22 @@ def test_model(model_name, dataset):
     
     print('Currently testing:', model_name)
     start_time = time.time()
-    
-    for example in dataset['test']:
-        tokens = example[tokens]
-        text = join_tokens(tokens)
-        result = ner_pipeline(text)
-        
 
+    tokens = wiki_dataset['tokens']
+    tags = wiki_dataset['ner_tags']
+    spans = wiki_dataset['spans']
+
+    for i in range(len(tokens)):
+        text = join_tokens(tokens[i])
+        result = ner_pipeline(text)
+        print(result)
+
+    end_time = time.time()
+    duration = end_time - start_time
+    print('Time:', duration)
+
+
+test_model(models['BERT'], wikiann[:10])
 
 '''for model in models:
 

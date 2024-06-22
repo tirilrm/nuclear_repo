@@ -29,7 +29,6 @@ for name in models:
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForQuestionAnswering.from_pretrained(model_name)
     qa_pipeline = pipeline('question-answering', model=model, tokenizer=tokenizer)
-    print(qa_pipeline)
 
     correct = 0
     total = 0
