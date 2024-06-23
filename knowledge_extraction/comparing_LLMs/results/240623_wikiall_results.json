@@ -1,0 +1,50 @@
+{
+    "BERT": {
+        "Source": "dslim/bert-base-NER",
+        "Accuracy": 0.7310708861389836,
+        "Precision": 1.0,
+        "Recall": 0.7310708861389836,
+        "F1 Score": 0.844645810859403,
+        "Time": 342.6697561740875
+    },
+    "DistilBERT": {
+        "Source": "dslim/distilbert-NER",
+        "Accuracy": 0.7315688569080995,
+        "Precision": 1.0,
+        "Recall": 0.7315688569080995,
+        "F1 Score": 0.844978071752103,
+        "Time": 205.46069598197937
+    },
+    "RoBERTa (large)": {
+        "Source": "Jean-Baptiste/roberta-large-ner-english",
+        "Accuracy": 0.5061499389985807,
+        "Precision": 1.0,
+        "Recall": 0.5061499389985807,
+        "F1 Score": 0.6721109577378639,
+        "Time": 1192.6774308681488
+    },
+    "RoBERTa (small)": {
+        "Source": "MMG/roberta-base-ner-english",
+        "Accuracy": 0.5067724024599756,
+        "Precision": 1.0,
+        "Recall": 0.5067724024599756,
+        "F1 Score": 0.6726595226095362,
+        "Time": 426.79998803138733
+    },
+    "RoBERTa (large2)": {
+        "Source": "FacebookAI/xlm-roberta-large-finetuned-conll03-english",
+        "Accuracy": 0.5070213878445335,
+        "Precision": 1.0,
+        "Recall": 0.5070213878445335,
+        "F1 Score": 0.6728788216731515,
+        "Time": 1171.3913459777832
+    },
+    "AlBERT": {
+        "Source": "ArBert/albert-base-v2-finetuned-ner",
+        "Accuracy": 0.5083534596519185,
+        "Precision": 1.0,
+        "Recall": 0.5083534596519185,
+        "F1 Score": 0.6740508418620007,
+        "Time": 494.0999608039856
+    }
+}
