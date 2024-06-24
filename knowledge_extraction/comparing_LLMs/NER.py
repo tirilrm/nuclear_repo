@@ -29,7 +29,6 @@ label_map = {
     'PER' : 1,
     'ORG': 3,
     'LOC': 5
-    
 }
 
 def merge_result(entities):
