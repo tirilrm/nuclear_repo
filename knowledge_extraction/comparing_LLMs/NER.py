@@ -8,10 +8,10 @@ wikiann = load_dataset('wikiann', 'en')
 models = {
     'BERT': 'dslim/bert-base-NER',
     'DistilBERT': 'dslim/distilbert-NER',
-    'RoBERTa (large)': 'Jean-Baptiste/roberta-large-ner-english',
     'RoBERTa (small)': 'MMG/roberta-base-ner-english',
-    'RoBERTa (large2)' : 'FacebookAI/xlm-roberta-large-finetuned-conll03-english',
-    'AlBERT': 'ArBert/albert-base-v2-finetuned-ner'
+    'AlBERT': 'ArBert/albert-base-v2-finetuned-ner',
+    'AlBERT 2': 'Jorgeutd/albert-base-v2-finetuned-ner',
+    'RoBERTa xlm': '51la5/roberta-large-NER'
 }
 
 def join_tokens(tokens):
@@ -128,6 +128,8 @@ def test_model(model_name, wiki_dataset, length=-1):
 data = wikiann['test'][:]
 results = {name: {} for name in models}
 
+time_start = time.time()
+
 for name in models:
     print('Currently testing:', name)
     model_name = models[name]
@@ -139,5 +141,8 @@ for name in models:
     results[name]['F1 Score'] = f1_score
     results[name]['Time'] = duration
 
-with open('results/240623_wikiall_results2.json', 'w') as f:
+time_end = time.time()
+print(f'Testing took {(time_end-time_start)/60:.2f} minutes')
+
+with open('results/240626_wikiall_results.json', 'w') as f:
     json.dump(results, f, indent=4)

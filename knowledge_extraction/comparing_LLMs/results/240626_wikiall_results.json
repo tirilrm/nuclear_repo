@@ -1,0 +1,50 @@
+{
+    "BERT": {
+        "Source": "dslim/bert-base-NER",
+        "Accuracy": 0.8648648648648649,
+        "Precision": 1.0,
+        "Recall": 0.8648648648648649,
+        "F1 Score": 0.927536231884058,
+        "Time": 0.13908100128173828
+    },
+    "DistilBERT": {
+        "Source": "dslim/distilbert-NER",
+        "Accuracy": 0.8648648648648649,
+        "Precision": 1.0,
+        "Recall": 0.8648648648648649,
+        "F1 Score": 0.927536231884058,
+        "Time": 0.06422901153564453
+    },
+    "RoBERTa (small)": {
+        "Source": "MMG/roberta-base-ner-english",
+        "Accuracy": 0.7027027027027027,
+        "Precision": 1.0,
+        "Recall": 0.7027027027027027,
+        "F1 Score": 0.8253968253968255,
+        "Time": 0.13220787048339844
+    },
+    "AlBERT": {
+        "Source": "ArBert/albert-base-v2-finetuned-ner",
+        "Accuracy": 0.7027027027027027,
+        "Precision": 1.0,
+        "Recall": 0.7027027027027027,
+        "F1 Score": 0.8253968253968255,
+        "Time": 0.12203097343444824
+    },
+    "AlBERT 2": {
+        "Source": "Jorgeutd/albert-base-v2-finetuned-ner",
+        "Accuracy": 0.7027027027027027,
+        "Precision": 1.0,
+        "Recall": 0.7027027027027027,
+        "F1 Score": 0.8253968253968255,
+        "Time": 0.12036824226379395
+    },
+    "RoBERTa xlm": {
+        "Source": "51la5/roberta-large-NER",
+        "Accuracy": 0.7027027027027027,
+        "Precision": 1.0,
+        "Recall": 0.7027027027027027,
+        "F1 Score": 0.8253968253968255,
+        "Time": 0.6084489822387695
+    }
+}
