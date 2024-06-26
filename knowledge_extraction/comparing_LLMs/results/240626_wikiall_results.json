@@ -1,50 +1,58 @@
 {
     "BERT": {
         "Source": "dslim/bert-base-NER",
-        "Accuracy": 0.7310708861389836,
+        "Accuracy": 0.7839721254355401,
         "Precision": 1.0,
-        "Recall": 0.7310708861389836,
-        "F1 Score": 0.844645810859403,
-        "Time": 382.1002547740936
+        "Recall": 0.7839721254355401,
+        "F1 Score": 0.87890625,
+        "Time": 3.433861017227173
     },
     "DistilBERT": {
         "Source": "dslim/distilbert-NER",
-        "Accuracy": 0.7315688569080995,
+        "Accuracy": 0.7865853658536586,
         "Precision": 1.0,
-        "Recall": 0.7315688569080995,
-        "F1 Score": 0.844978071752103,
-        "Time": 211.23573398590088
+        "Recall": 0.7865853658536586,
+        "F1 Score": 0.8805460750853242,
+        "Time": 1.8740198612213135
     },
-    "RoBERTa (small)": {
+    "RoBERTa1": {
         "Source": "MMG/roberta-base-ner-english",
-        "Accuracy": 0.5067724024599756,
+        "Accuracy": 0.8048780487804879,
         "Precision": 1.0,
-        "Recall": 0.5067724024599756,
-        "F1 Score": 0.6726595226095362,
-        "Time": 392.02698397636414
+        "Recall": 0.8048780487804879,
+        "F1 Score": 0.8918918918918919,
+        "Time": 4.290294885635376
     },
-    "AlBERT": {
-        "Source": "ArBert/albert-base-v2-finetuned-ner",
-        "Accuracy": 0.5083534596519185,
-        "Precision": 1.0,
-        "Recall": 0.5083534596519185,
-        "F1 Score": 0.6740508418620007,
-        "Time": 508.6025869846344
-    },
-    "AlBERT 2": {
-        "Source": "Jorgeutd/albert-base-v2-finetuned-ner",
-        "Accuracy": 0.5069964893060778,
-        "Precision": 1.0,
-        "Recall": 0.5069964893060778,
-        "F1 Score": 0.6728568950277156,
-        "Time": 501.0373342037201
-    },
-    "RoBERTa xlm": {
+    "RoBERTa2": {
         "Source": "51la5/roberta-large-NER",
-        "Accuracy": 0.5070213878445335,
+        "Accuracy": 0.705574912891986,
         "Precision": 1.0,
-        "Recall": 0.5070213878445335,
-        "F1 Score": 0.6728788216731515,
-        "Time": 1229.7330870628357
+        "Recall": 0.705574912891986,
+        "F1 Score": 0.8273748723186926,
+        "Time": 11.01915192604065
+    },
+    "RoBERTa3": {
+        "Source": "FacebookAI/xlm-roberta-large-finetuned-conll03-english",
+        "Accuracy": 0.705574912891986,
+        "Precision": 1.0,
+        "Recall": 0.705574912891986,
+        "F1 Score": 0.8273748723186926,
+        "Time": 11.804457426071167
+    },
+    "ALBERT1": {
+        "Source": "ArBert/albert-base-v2-finetuned-ner",
+        "Accuracy": 0.7961672473867596,
+        "Precision": 1.0,
+        "Recall": 0.7961672473867596,
+        "F1 Score": 0.8865179437439379,
+        "Time": 5.429692983627319
+    },
+    "ALBERT2": {
+        "Source": "Jorgeutd/albert-base-v2-finetuned-ner",
+        "Accuracy": 0.8031358885017421,
+        "Precision": 1.0,
+        "Recall": 0.8031358885017421,
+        "F1 Score": 0.8908212560386474,
+        "Time": 4.487236261367798
     }
 }
