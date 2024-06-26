@@ -1,50 +1,50 @@
 {
     "BERT": {
         "Source": "dslim/bert-base-NER",
-        "Accuracy": 0.8648648648648649,
+        "Accuracy": 0.7310708861389836,
         "Precision": 1.0,
-        "Recall": 0.8648648648648649,
-        "F1 Score": 0.927536231884058,
-        "Time": 0.13908100128173828
+        "Recall": 0.7310708861389836,
+        "F1 Score": 0.844645810859403,
+        "Time": 382.1002547740936
     },
     "DistilBERT": {
         "Source": "dslim/distilbert-NER",
-        "Accuracy": 0.8648648648648649,
+        "Accuracy": 0.7315688569080995,
         "Precision": 1.0,
-        "Recall": 0.8648648648648649,
-        "F1 Score": 0.927536231884058,
-        "Time": 0.06422901153564453
+        "Recall": 0.7315688569080995,
+        "F1 Score": 0.844978071752103,
+        "Time": 211.23573398590088
     },
     "RoBERTa (small)": {
         "Source": "MMG/roberta-base-ner-english",
-        "Accuracy": 0.7027027027027027,
+        "Accuracy": 0.5067724024599756,
         "Precision": 1.0,
-        "Recall": 0.7027027027027027,
-        "F1 Score": 0.8253968253968255,
-        "Time": 0.13220787048339844
+        "Recall": 0.5067724024599756,
+        "F1 Score": 0.6726595226095362,
+        "Time": 392.02698397636414
     },
     "AlBERT": {
         "Source": "ArBert/albert-base-v2-finetuned-ner",
-        "Accuracy": 0.7027027027027027,
+        "Accuracy": 0.5083534596519185,
         "Precision": 1.0,
-        "Recall": 0.7027027027027027,
-        "F1 Score": 0.8253968253968255,
-        "Time": 0.12203097343444824
+        "Recall": 0.5083534596519185,
+        "F1 Score": 0.6740508418620007,
+        "Time": 508.6025869846344
     },
     "AlBERT 2": {
         "Source": "Jorgeutd/albert-base-v2-finetuned-ner",
-        "Accuracy": 0.7027027027027027,
+        "Accuracy": 0.5069964893060778,
         "Precision": 1.0,
-        "Recall": 0.7027027027027027,
-        "F1 Score": 0.8253968253968255,
-        "Time": 0.12036824226379395
+        "Recall": 0.5069964893060778,
+        "F1 Score": 0.6728568950277156,
+        "Time": 501.0373342037201
     },
     "RoBERTa xlm": {
         "Source": "51la5/roberta-large-NER",
-        "Accuracy": 0.7027027027027027,
+        "Accuracy": 0.5070213878445335,
         "Precision": 1.0,
-        "Recall": 0.7027027027027027,
-        "F1 Score": 0.8253968253968255,
-        "Time": 0.6084489822387695
+        "Recall": 0.5070213878445335,
+        "F1 Score": 0.6728788216731515,
+        "Time": 1229.7330870628357
     }
 }

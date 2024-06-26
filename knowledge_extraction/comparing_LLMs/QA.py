@@ -48,6 +48,7 @@ for name in models:
     accuracy = correct/total
     length = end-start
 
+    results[name]['Source'] = model_name
     results[name]['Accuracy'] = accuracy
     results[name]['Time'] = length
 
