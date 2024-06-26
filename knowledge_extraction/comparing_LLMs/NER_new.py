@@ -171,7 +171,7 @@ time_start = time.time()
 for name in models:
     model_name = models[name]
     print('Currently testing:', model_name)
-    duration, accuracy, precision, recall, f1_score = test_model(model_name, data, length=100)
+    duration, accuracy, precision, recall, f1_score = test_model(model_name, data)
     results[name]['Source'] = model_name
     results[name]['Accuracy'] = accuracy
     results[name]['Precision'] = precision
