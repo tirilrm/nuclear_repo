@@ -41,7 +41,6 @@ reverse_label_map = {
     '8': 'I-MISC'
 }
 
-
 def join_tokens(tokens):
     return ' '.join(tokens)
 
