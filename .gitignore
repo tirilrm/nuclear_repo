@@ -10,3 +10,6 @@ env/
 # Ignore Python cache files
 __pycache__/
 *.py[cod]
+
+# Ignore large files
+/scraping/articles/old
