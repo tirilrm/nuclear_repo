@@ -15,7 +15,7 @@ headers = {
 }
 
 def make_date_format(date_str):
-    date_obj = datetime.strptime(date_str, "%d %b, %Y")
+    date_obj = datetime.strptime(date_str, "%d-%m-%Y")
     return date_obj.strftime("%d %B %Y")
 
 def scrape_NCE_article(url):
@@ -29,12 +29,11 @@ def scrape_NCE_article(url):
     except AttributeError:
         title = None
     
+    date = url[-11:-1]
     try:
-        date = soup.find('span', class_='tie-date').get_text()
-    except AttributeError:
+        date = make_date_format(date)
+    except ValueError:
         date = None
-    
-    date = make_date_format(date)
     
     try:
         author = soup.find('a', class_='author url fn').text
@@ -69,5 +68,5 @@ end_time = time.time()
 
 print(f'Finished scrape, took {(end_time-start_time)/60:.2f} minutes')
 
-with open('articles/NCE_articles.json', 'w', encoding='utf-8') as file:
+with open('TEST_NCE_articles.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)
