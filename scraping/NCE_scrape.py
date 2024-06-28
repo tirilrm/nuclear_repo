@@ -2,6 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import time
+from datetime import datetime
 
 start_time = time.time()
 
@@ -12,6 +13,10 @@ urls = urls_raw.split('\n')
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 }
+
+def make_date_format(date_str):
+    date_obj = datetime.strptime(date_str, "%d %b, %Y")
+    return date_obj.strftime("%d %B %Y")
 
 def scrape_NCE_article(url):
     print(url)
@@ -28,6 +33,8 @@ def scrape_NCE_article(url):
         date = soup.find('span', class_='tie-date').get_text()
     except AttributeError:
         date = None
+    
+    date = make_date_format(date)
     
     try:
         author = soup.find('a', class_='author url fn').text
@@ -60,7 +67,7 @@ articles = [scrape_NCE_article(url) for url in urls if url]
 
 end_time = time.time()
 
-print(f'Finished scrape, took {end_time-start_time} seconds')
+print(f'Finished scrape, took {(end_time-start_time)/60:.2f} minutes')
 
-with open('NCE_articles.json', 'w', encoding='utf-8') as file:
+with open('articles/NCE_articles.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)
