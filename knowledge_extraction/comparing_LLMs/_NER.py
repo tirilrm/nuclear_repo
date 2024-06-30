@@ -1,13 +1,3 @@
-models = {
-    'BERT': 'dslim/bert-base-NER',
-    'DistilBERT': 'dslim/distilbert-NER',
-    'RoBERTa1': 'MMG/roberta-base-ner-english',
-    'RoBERTa2': '51la5/roberta-large-NER',
-    'RoBERTa3': 'FacebookAI/xlm-roberta-large-finetuned-conll03-english',
-    'ALBERT1': 'ArBert/albert-base-v2-finetuned-ner',
-    'ALBERT2': 'Jorgeutd/albert-base-v2-finetuned-ner'
-}
-
 label_map = {
     '0': 0,
     'B-PER': 1,
