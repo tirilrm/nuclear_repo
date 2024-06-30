@@ -3,7 +3,7 @@ from datasets import load_dataset
 import time
 import json
 
-from _NER import join_tokens, merge_result, find_word_indices, get_predicted_tags, calculate_metrics
+from _NER import join_tokens, merge_result, get_predicted_tags, calculate_metrics
 
 wikiann = load_dataset('wikiann', 'en')
 
