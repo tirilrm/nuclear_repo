@@ -36,8 +36,16 @@ def merge_result(entities, name):
             if current == None:
                 current = entity
             else:
-                if entity['word'].startswith('##'):
+                if entity['word'].startswith('##') and entity['start'] == current['end']:
                     current['word'] += entity['word'][2:]
+                    current['end'] = entity['end']
+                    current['score'] = min(current['score'], entity['score'])
+                elif entity['start'] == current['end'] and entity['entity'][2:] == current['entity'][2:]:
+                    current['word'] += entity['word']
+                    current['end'] = entity['end']
+                    current['score'] = min(current['score'], entity['score'])
+                elif entity['start'] + 1 == current['end'] and entity['entity'][2:] == current['entity'][2:]:
+                    current['word'] += ' ' + entity['word']
                     current['end'] = entity['end']
                     current['score'] = min(current['score'], entity['score'])
                 else:
