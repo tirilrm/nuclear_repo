@@ -41,18 +41,21 @@ def scrape_NCE_article(url):
         author = None
 
     try:
-        article_all = soup.find('div', class_= 'entry').get_text(separator="\n", strip=True)
-        text_content = article_all.split('\n')
+        raw_text = soup.find('div', class_='content container').text.split('\n')
         text = []
-        unwanteds = ['to receive new civil engineer\'s', 'like what you\'ve read?']
-        if text_content:
-            for line in text_content:
-                if not any(unwanted in line.lower() \
-                        for unwanted in unwanteds) \
-                            and len(line) > 25:
-                    text.append(line)
+        unwanteds = ['to receive new civil engineer\'s', 'like what you\'ve read?', 'tagged with:', 'sign in or register']
+        tmp = url[-11:-1]
+        url_date = tmp[-4:] + tmp[-5] + tmp[-7:-5] + tmp[-8] + tmp[:-8]
+        for line in raw_text:
+            if url_date in line:
+                break
+            elif not any(unwanted in line.lower() for unwanted in unwanteds) \
+                and len(line) > 25:
+                text.append(line)
     except AttributeError:
         text = None
+        print('No text')
+
     return {
         'url': url,
         'magasine': 'New Civil Engineer',
