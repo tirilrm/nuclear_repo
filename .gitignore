@@ -1,8 +1,7 @@
-# Ignore virtual environemnts
+# Ignore virtual environemntse etc.
 env/
-
-# Ignore environment files
-.env
+ignore/
+/scraping/articles/old
 
 # Ignore Jupyter notebook checkpoints
 .ipynb_checkpoints
@@ -10,6 +9,3 @@ env/
 # Ignore Python cache files
 __pycache__/
 *.py[cod]
-
-# Ignore large files
-/scraping/articles/old
