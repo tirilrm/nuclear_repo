@@ -71,5 +71,5 @@ end_time = time.time()
 
 print(f'Finished scrape, took {(end_time-start_time)/60:.2f} minutes')
 
-with open('TEST_NCE_articles.json', 'w', encoding='utf-8') as file:
+with open('NCE_articles.json', 'w', encoding='utf-8') as file:
     json.dump(articles, file, ensure_ascii=False, indent=4)
