@@ -1,5 +1,3 @@
-# NOTE: THIS IS A COPY FROM performance_tests FOLDER AS I couldn't be bothered to use os and filepath change whatever
-
 label_map = {
     '0': 0,
     'B-PER': 1,
