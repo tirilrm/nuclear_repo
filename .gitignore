@@ -1,6 +1,7 @@
-# Ignore virtual environemntse etc.
+# Ignore virtual environemnts, large files etc.
 env/
 ignore/
+dreem_models/
 /scraping/articles/old
 
 # Ignore Jupyter notebook checkpoints
