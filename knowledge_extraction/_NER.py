@@ -126,11 +126,24 @@ def combine_entities(entities):
                 'word': current_entity['word']
             }
             j = i + 1
-            while j < len(entities) and entities[j]['entity'] == f'I-{entity_type}' and entities[j]['start'] == combined_entity['end'] + 1:
-                combined_entity['word'] += ' ' + entities[j]['word']
-                combined_entity['end'] = entities[j]['end']
-                combined_entity['score'] = min(combined_entity['score'], entities[j]['score'])
-                j += 1
+            while j < len(entities):
+                if entities[j]['word'] == '-':
+                    combined_entity['word'] += entities[j]['word']
+                    combined_entity['end'] = entities[j]['end']
+                    combined_entity['score'] = min(combined_entity['score'], entities[j]['score'])
+                    j += 1
+                elif entities[j]['entity'] == f'I-{entity_type}' and (entities[j]['start'] == combined_entity['end'] + 1):
+                    combined_entity['word'] += ' ' + entities[j]['word']
+                    combined_entity['end'] = entities[j]['end']
+                    combined_entity['score'] = min(combined_entity['score'], entities[j]['score'])
+                    j += 1
+                elif (entities[j-1]['word'] == '-'):
+                    combined_entity['word'] += entities[j]['word']
+                    combined_entity['end'] = entities[j]['end']
+                    combined_entity['score'] = min(combined_entity['score'], entities[j]['score'])
+                    j += 1
+                else:
+                    break
             combined_entities.append(combined_entity)
             i = j
         else:
