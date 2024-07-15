@@ -81,7 +81,7 @@ model_name = 'dslim/distilbert-NER'
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 ner_pipeline = pipeline('ner', model=model_name, tokenizer=tokenizer)
 
-N = 10
+N = 3000
 mismatches = []
 approx_matches = []
 results_all = {}
