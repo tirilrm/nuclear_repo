@@ -110,3 +110,42 @@ def calculate_metrics(tags_pred, tags_gold):
             tn += 1
     
     return tp, fp, tn, fn
+
+def combine_entities(entities):
+    combined_entities = []
+    i = 0
+    while i < len(entities):
+        current_entity = entities[i]
+        if current_entity['entity'].startswith('B-'):
+            entity_type = current_entity['entity'][2:]
+            combined_entity = {
+                'entity': entity_type,
+                'score': current_entity['score'],
+                'start': current_entity['start'],
+                'end': current_entity['end'],
+                'word': current_entity['word']
+            }
+            j = i + 1
+            while j < len(entities):
+                if entities[j]['word'] == '-':
+                    combined_entity['word'] += entities[j]['word']
+                    combined_entity['end'] = entities[j]['end']
+                    combined_entity['score'] = min(combined_entity['score'], entities[j]['score'])
+                    j += 1
+                elif entities[j]['entity'] == f'I-{entity_type}' and (entities[j]['start'] == combined_entity['end'] + 1):
+                    combined_entity['word'] += ' ' + entities[j]['word']
+                    combined_entity['end'] = entities[j]['end']
+                    combined_entity['score'] = min(combined_entity['score'], entities[j]['score'])
+                    j += 1
+                elif (entities[j-1]['word'] == '-'):
+                    combined_entity['word'] += entities[j]['word']
+                    combined_entity['end'] = entities[j]['end']
+                    combined_entity['score'] = min(combined_entity['score'], entities[j]['score'])
+                    j += 1
+                else:
+                    break
+            combined_entities.append(combined_entity)
+            i = j
+        else:
+            i += 1
+    return combined_entities

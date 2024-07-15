@@ -1,0 +1,48 @@
+{
+    "N": 3000,
+    "train_annotated": {
+        "accuracy": 0.7689393939393939,
+        "exact_matches": {
+            "count": 142,
+            "percent": 0.5378787878787878
+        },
+        "approx_matches": {
+            "count": 61,
+            "percent": 0.23106060606060605
+        },
+        "mismatches": {
+            "count": 61,
+            "percent": 0.23106060606060605
+        }
+    },
+    "train_distant": {
+        "accuracy": 0.8873239436619719,
+        "exact_matches": {
+            "count": 149,
+            "percent": 0.6995305164319249
+        },
+        "approx_matches": {
+            "count": 40,
+            "percent": 0.18779342723004694
+        },
+        "mismatches": {
+            "count": 24,
+            "percent": 0.11267605633802817
+        }
+    },
+    "total": {
+        "accuracy": 0.8218029350104822,
+        "exact_matches": {
+            "count": 291,
+            "percent": 0.610062893081761
+        },
+        "approx_matches": {
+            "count": 101,
+            "percent": 0.21174004192872117
+        },
+        "mismatches": {
+            "count": 85,
+            "percent": 0.17819706498951782
+        }
+    }
+}
