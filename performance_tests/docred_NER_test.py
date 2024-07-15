@@ -13,19 +13,15 @@ from _NER import merge_result, combine_entities
 
 def get_info(docred_instance):
     title = docred_instance['title']
-
     flattened_sents = [' '.join(sublist) for sublist in docred_instance['sents']]
     text = '\n'.join(flattened_sents)
-
     nested_entities = docred_instance['vertexSet']
     entities = list(itertools.chain(*nested_entities))
-    
     head = docred_instance['labels']['head']
     tail = docred_instance['labels']['tail']
     r_id = docred_instance['labels']['relation_id']
     r_text = docred_instance['labels']['relation_text']
     evidence = docred_instance['labels']['evidence']
-
     return title, text, entities, head, tail, r_id, r_text, evidence
 
 def get_approx_match(gold, preds, threshold=0.8):
@@ -40,16 +36,17 @@ def get_results_table(tp_exact, fp_exact, fn_exact, tp_approx, fp_approx, fn_app
     total_entities = tp_exact + fn_exact + tp_approx + fn_approx
     total_correct = tp_exact + tp_approx
 
-    precision_exact = tp_exact / (tp_exact + fp_exact) 
-    recall_exact = tp_exact / (tp_exact + fn_exact) 
-    f1_score_exact = 2 * (precision_exact * recall_exact) / (precision_exact + recall_exact) 
+    # Calculate metrics for exact matches
+    precision_exact = tp_exact / (tp_exact + fp_exact)
+    recall_exact = tp_exact / (tp_exact + fn_exact)
+    f1_score_exact = 2 * (precision_exact * recall_exact) / (precision_exact + recall_exact)
     accuracy_exact = tp_exact / (tp_exact + fn_exact)
 
+    # Calculate metrics for approximate matches (includes exact matches)
     precision_approx = (tp_exact + tp_approx) / (tp_exact + tp_approx + fp_approx)
-    recall_approx = (tp_exact + tp_approx) / (tp_exact + tp_approx + fn_approx) 
+    recall_approx = (tp_exact + tp_approx) / (tp_exact + tp_approx + fn_approx)
     f1_score_approx = 2 * (precision_approx * recall_approx) / (precision_approx + recall_approx)
     accuracy_approx = (tp_exact + tp_approx) / (tp_exact + tp_approx + fn_approx)
-
     results = {
         'exact_match': {
             'count': tp_exact,
@@ -68,11 +65,10 @@ def get_results_table(tp_exact, fp_exact, fn_exact, tp_approx, fp_approx, fn_app
             'f1_score': f1_score_approx
         },
         'non-match': {
-            'count': fn_exact + fn_approx,
-            'percentage': (fn_exact + fn_approx) / total_entities if total_entities != 0 else 0
+            'count': fn_approx,
+            'percentage': fn_approx / total_entities
         }
     }
-
     return results
 
 data = load_dataset('docred', trust_remote_code=True)
@@ -103,8 +99,8 @@ for d, nrows in datasets:
     tp_approx, fp_approx, fn_approx = 0, 0, 0
 
     random_permutation = np.random.permutation(nrows)[:N]
-
     ds = pd.DataFrame(data[d])
+    
     for i, index in enumerate(random_permutation):
         if i % 50 == 0:
             print('Iteration:', i)
@@ -118,7 +114,7 @@ for d, nrows in datasets:
         preds = [(p['word'], p['entity']) for p in predicted if p['entity'] in ['LOC', 'PER', 'ORG', 'MISC']]
         
         for g in gold:
-            if g in preds: 
+            if g in preds:
                 tp_exact += 1
                 tp_approx += 1
             elif get_approx_match(g, preds):
@@ -147,7 +143,6 @@ for d, nrows in datasets:
 
 print('Calculating totals...')
 
-results = {}
 results_all['total'] = get_results_table(tp_exact_all, fp_exact_all, fn_exact_all, tp_approx_all, fp_approx_all, fn_approx_all)
 
 print('Done. Writing files...')
