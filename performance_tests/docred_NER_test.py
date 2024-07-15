@@ -109,9 +109,9 @@ for d, nrows in datasets:
         result = ner_pipeline(text)
         merged_result = merge_result(result, model_name)
         predicted = combine_entities(merged_result)
-        
-        gold = [(gt['name'], gt['type']) for gt in ground_truth]
-        preds = [(p['word'], p['entity']) for p in predicted if p['entity'] in ['LOC', 'PER', 'ORG', 'MISC']]
+
+        gold = [(gt['name'], gt['type']) for gt in ground_truth if gt['name']]
+        preds = [(p['word'], p['entity']) for p in predicted if p['entity']]
         
         for g in gold:
             if g in preds:
@@ -122,6 +122,7 @@ for d, nrows in datasets:
                 fn_exact += 1
                 approx_matches.append(f"{g}: {get_approx_match(g, preds)}")
             else:
+                fn_approx += 1
                 fn_exact += 1
                 mismatches.append('gold: ' + str(g))
                 mismatches.append('preds:')
@@ -130,7 +131,6 @@ for d, nrows in datasets:
     
         fp_exact += len([p for p in preds if p not in gold])
         fp_approx += len([p for p in preds if p not in gold and get_approx_match(p, gold)])
-        fn_approx += len([g for g in gold if not get_approx_match(g, preds)])
 
     results_all[d] = get_results_table(tp_exact, fp_exact, fn_exact, tp_approx, fp_approx, fn_approx)
 
@@ -155,5 +155,5 @@ with open('results/240715_docred_approximate_matches.txt', 'w') as file:
     for approx_match in approx_matches:
         file.write(str(approx_match) + '\n')
 
-with open('results/240714_docred.json', 'w') as f:
+with open('results/240715_docred.json', 'w') as f:
     json.dump(results_all, f, indent=4)
