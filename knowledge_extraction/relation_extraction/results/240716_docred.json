@@ -1,0 +1,69 @@
+{
+    "number_of_instances": 3000,
+    "train_annotated": {
+        "exact_match": {
+            "count": 42861,
+            "percentage": 0.2744052344490256,
+            "accuracy": 0.5488104688980512,
+            "precision": 0.7043598297480732,
+            "recall": 0.5488104688980512,
+            "f1_score": 0.6169313920935019
+        },
+        "approximate_match": {
+            "count": 53922,
+            "percentage": 0.3452201080693488,
+            "accuracy": 0.8001306227730057,
+            "precision": 0.8978847759532425,
+            "recall": 0.8001306227730057,
+            "f1_score": 0.8461938631425711
+        },
+        "non-match": {
+            "count": 24176,
+            "percentage": 0.15477989193065123
+        }
+    },
+    "train_distant": {
+        "exact_match": {
+            "count": 41597,
+            "percentage": 0.2777095322660329,
+            "accuracy": 0.5554190645320658,
+            "precision": 0.6936532817502669,
+            "recall": 0.5554190645320658,
+            "f1_score": 0.6168870170026918
+        },
+        "approximate_match": {
+            "count": 53580,
+            "percentage": 0.35771033340899683,
+            "accuracy": 0.8170400892780496,
+            "precision": 0.8929345429640957,
+            "recall": 0.8170400892780496,
+            "f1_score": 0.853303089936749
+        },
+        "non-match": {
+            "count": 21313,
+            "percentage": 0.14228966659100317
+        }
+    },
+    "total": {
+        "exact_match": {
+            "count": 84458,
+            "percentage": 0.2760227725813937,
+            "accuracy": 0.5520455451627874,
+            "precision": 0.69904567990134,
+            "recall": 0.5520455451627874,
+            "f1_score": 0.6169095358095029
+        },
+        "approximate_match": {
+            "count": 107502,
+            "percentage": 0.35133439221915014,
+            "accuracy": 0.8084262304747546,
+            "precision": 0.8954235256251778,
+            "recall": 0.8084262304747546,
+            "f1_score": 0.8497038696141009
+        },
+        "non-match": {
+            "count": 45489,
+            "percentage": 0.14866560778084986
+        }
+    }
+}
