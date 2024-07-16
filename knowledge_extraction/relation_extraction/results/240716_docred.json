@@ -1,5 +1,6 @@
 {
     "number_of_instances": 3000,
+    "comments": "Using combine_text from _RE which seems to reduce performance?",
     "train_annotated": {
         "exact_match": {
             "count": 42861,
