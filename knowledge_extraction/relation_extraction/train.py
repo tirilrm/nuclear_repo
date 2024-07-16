@@ -1,20 +1,21 @@
-from transformers import AutoTokenizer, DistilBertModel, pipeline
-from datasets import load_dataset
+from transformers import AutoTokenizer, DistilBertModel, pipeline, DistilBertTokenizer, DistilBertForTokenClassification
 import torch
 import torch.nn as nn
 
-class DistilBertRE(nn.Module):
+class RelationExtractionModel(nn.Module):
 
-    def __init__(self, hidden_dim, num_classes):
-        super().__init__()
-        self.distilbert = DistilBertModel.from_pretrained('distilbert-base-uncased')
+    def __init__(self, distilbert_model_name='dslim/distilbert-NER', lstm_hidden_size=128, num_classes=97):
+        super(RelationExtractionModel, self).__init__()
+        self.bert = DistilBertForTokenClassification.from_pretrained(distilbert_model_name)
+        self.lstm = nn.LSTM(self.bert.config.hidden_size, lstm_hidden_size, batch_first=True, bidirectional=True)
+        self.classifier = nn.Linear(lstm_hidden_size * 2, num_classes)
 
-        self.model_name = 'dslim/distilbert-NER'
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        self.ner = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer)
-
-        self.lstm = nn.LSTM(self.distilbert.config.hidden_size, hidden_dim, num_layers=1, bidirectional=True, batch_first=True)
-        self.classifier = nn.Linear(hidden_dim * 2, num_classes)
+    def forward(self, input_ids, attention_mask):
+        bert_outputs = self.bert.distilbert(input_ids=input_ids, attention_mask=attention_mask).last_hidden_state
+        lstm_output, _ = self.lstm(bert_outputs)
+        logits = self.classifier(lstm_output[:, 0, :])
+        return logits
     
-    def get_word_embeddings():
-        pass
+model = RelationExtractionModel()
+criterion = nn.BCEWithLogitsLoss()  # or another appropriate loss function
+optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
