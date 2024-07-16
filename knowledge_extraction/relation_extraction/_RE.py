@@ -86,7 +86,7 @@ def merge_result(entities, name):
             merged_entities.append(current)
     return merged_entities
 
-def join_text(sents):
+def join_text(sents, fancy=True):
     '''
     Make a paragraph out of given sentences and words, 
     with special rules for specific chars
@@ -95,26 +95,29 @@ def join_text(sents):
     for sent in sents:
         sentence = ''
         for i, word in enumerate(sent):
-            if i == 0:
-                sentence += word
-            else:
-                prev_word = sent[i-1]
-                if word.isalnum() and prev_word.isalnum():
-                    sentence += ' ' + word
-                elif prev_word in '(-':
+            if fancy:
+                if i == 0:
                     sentence += word
-                elif word in '"\'' and prev_word.isalnum():
-                    sentence += ' ' + word
-                elif word in ')-':
-                    sentence += word
-                elif word == '(':
-                    sentence += ' ' + word
-                elif not word.isalnum() and prev_word[:-1].isalnum():
-                    sentence += word
-                elif word[:-1].isalnum() and not prev_word.isalnum():
-                    sentence += ' ' + word
                 else:
-                    sentence += word
-        text += sentence + '\n'
+                    prev_word = sent[i-1]
+                    if word.isalnum() and prev_word.isalnum():
+                        sentence += ' ' + word
+                    elif prev_word in '(-':
+                        sentence += word
+                    elif word in '"\'' and prev_word.isalnum():
+                        sentence += ' ' + word
+                    elif word in ')-':
+                        sentence += word
+                    elif word == '(':
+                        sentence += ' ' + word
+                    elif not word.isalnum() and prev_word[:-1].isalnum():
+                        sentence += word
+                    elif word[:-1].isalnum() and not prev_word.isalnum():
+                        sentence += ' ' + word
+                    else:
+                        sentence += word
+            else:
+                sentence += ' ' + word
+        text += sentence.strip() + '\n'
     
     return text.strip()

@@ -1,0 +1,70 @@
+{
+    "number_of_instances": 3000,
+    "comments": "Combining text wihtout considering punctuation (using unfancy combine_text func, i.e. all words joined with a single space)",
+    "train_annotated": {
+        "exact_match": {
+            "count": 43625,
+            "percentage": 0.27958291676279834,
+            "accuracy": 0.5591658335255967,
+            "precision": 0.7170800664069563,
+            "recall": 0.5591658335255967,
+            "f1_score": 0.6283533182096431
+        },
+        "approximate_match": {
+            "count": 53914,
+            "percentage": 0.34552282806531825,
+            "accuracy": 0.8018463865573852,
+            "precision": 0.9051083375864148,
+            "recall": 0.8018463865573852,
+            "f1_score": 0.8503539545264331
+        },
+        "non-match": {
+            "count": 24104,
+            "percentage": 0.15447717193468175
+        }
+    },
+    "train_distant": {
+        "exact_match": {
+            "count": 42771,
+            "percentage": 0.28117357805884985,
+            "accuracy": 0.5623471561176997,
+            "precision": 0.7001767999214222,
+            "recall": 0.5623471561176997,
+            "f1_score": 0.6237385521787319
+        },
+        "approximate_match": {
+            "count": 54632,
+            "percentage": 0.3591469667885035,
+            "accuracy": 0.8196904795967315,
+            "precision": 0.896154200018401,
+            "recall": 0.8196904795967315,
+            "f1_score": 0.8562186015233892
+        },
+        "non-match": {
+            "count": 21426,
+            "percentage": 0.1408530332114965
+        }
+    },
+    "total": {
+        "exact_match": {
+            "count": 86396,
+            "percentage": 0.28036813001375943,
+            "accuracy": 0.5607362600275189,
+            "precision": 0.7086111726253455,
+            "recall": 0.5607362600275189,
+            "f1_score": 0.6260602393486933
+        },
+        "approximate_match": {
+            "count": 108546,
+            "percentage": 0.35224824112775516,
+            "accuracy": 0.8106640274127549,
+            "precision": 0.900612136471784,
+            "recall": 0.8106640274127549,
+            "f1_score": 0.8532741553902483
+        },
+        "non-match": {
+            "count": 45530,
+            "percentage": 0.14775175887224487
+        }
+    }
+}

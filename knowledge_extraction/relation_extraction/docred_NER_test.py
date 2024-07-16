@@ -106,7 +106,7 @@ for d, nrows in datasets:
             print('Iteration:', i)
 
         title, sents, ground_truth, _, _, _, _, _ = get_info(ds.iloc[index])
-        text = join_text(sents)
+        text = join_text(sents, fancy = False)
         result = ner_pipeline(text)
         merged_result = merge_result(result, model_name)
         predicted = combine_entities(merged_result)
@@ -150,13 +150,13 @@ print('Done. Writing files...')
 
 DATE = '240716'
 
-with open('results/' + DATE + '_docred_mismatches.txt', 'w') as file:
+with open('results/' + DATE + '_docred_mismatches_UNFANCY.txt', 'w') as file:
     for mismatch in mismatches:
         file.write(str(mismatch) + '\n')
 
-with open('results/' + DATE + '_docred_approximate_matches.txt', 'w') as file:
+with open('results/' + DATE + '_docred_approximate_matches_UNFANCY.txt', 'w') as file:
     for approx_match in approx_matches:
         file.write(str(approx_match) + '\n')
 
-with open('results/' + DATE + '_docred.json', 'w') as f:
+with open('results/' + DATE + '_docred_UNFANCY.json', 'w') as f:
     json.dump(results_all, f, indent=4)
