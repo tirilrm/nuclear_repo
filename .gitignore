@@ -3,6 +3,7 @@ env/
 ignore/
 dreeam_models/
 /scraping/articles/old
+/knowledge_extraction/relation_extraction/docred_metadata
 
 # Ignore Jupyter notebook checkpoints
 .ipynb_checkpoints
