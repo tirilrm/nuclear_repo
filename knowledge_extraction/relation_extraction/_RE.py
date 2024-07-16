@@ -121,3 +121,39 @@ def join_text(sents, fancy=True):
         text += sentence.strip() + '\n'
     
     return text.strip()
+
+def make_triplets(vertexSet, labels):
+    '''
+    Returns a list of triplet of format <head, relation, tail>
+    `head` and `tail` contains a list of "synonym" entites (e.g. Swedish and Sweden)
+    `relation` contains relation_id and relation_text (which explain the relation, e.g. "country")
+    '''
+
+    names = []
+    types = []
+    triplets = []
+
+    # Extract names and types from vertexSet
+    for entities in vertexSet:
+        sub_names = [entity['name'] for entity in entities]
+        sub_types = [entity['type'] for entity in entities]
+        names.append(sub_names)
+        types.append(sub_types)
+
+    # Construct triplets
+    for i in range(len(labels['head'])):
+        head_index = labels['head'][i]
+        tail_index = labels['tail'][i]
+        relation_id = labels['relation_id'][i]
+        relation_text = labels['relation_text'][i]
+
+        # Ensure the indices are valid
+        if head_index < len(names) and tail_index < len(names):
+            head_entities = names[head_index]
+            tail_entities = names[tail_index]
+            relation = [relation_id, relation_text]
+            triplets.append([head_entities, relation, tail_entities])
+        else:
+            print(f"Invalid head or tail index: head_index={head_index}, tail_index={tail_index}")
+    
+    return triplets
