@@ -97,7 +97,7 @@ def get_keywords():
 
 custom_keywords = get_keywords()
 
-def get_articles_data():
+def make_articles_data():
     articles = get_articles()
     context_and_pairs = []
     length = len(articles)
@@ -117,9 +117,10 @@ def get_articles_data():
     with open('knowledge_extraction/relation_extraction/data/context_and_pairs.pkl', 'wb') as file:
         pickle.dump(context_and_pairs, file)
 
-def get_training_and_test_data():
-    data = load_dataset('docred', trust_remote_code=True)
-    datasets = [
-        ('train_annotated', 3035),
-        ('train_distant', 101873)
-    ]
+data = load_dataset('docred', trust_remote_code=True)
+datasets = [
+    ('validation', 998),
+    ('test', 1000),
+    ('train_annotated', 3035),
+    ('train_distant', 101873)
+]
