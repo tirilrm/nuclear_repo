@@ -6,8 +6,9 @@ import json
 import torch
 import pickle
 import re
+import pandas as pd
 
-from _RE import merge_result, combine_entities
+from _RE import merge_result, combine_entities, join_text
 
 model_name = 'dslim/distilbert-NER'
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -82,15 +83,20 @@ def create_entity_pairs(entities):
                 
     return list(pairs)
 
-def get_articles():
+def move_to_root():
     current_directory = os.path.abspath(os.path.dirname(__file__))
     two_layers_up = os.path.dirname(os.path.dirname(current_directory))
+    os.chdir(two_layers_up)
+
+def get_articles():
+    move_to_root()
     file = open('scraping/articles/filtered_articles.json', 'r')
     articles = file.read()
     articles = json.loads(articles)
     return articles
 
 def get_keywords():
+    move_to_root()
     with open('keyword_matching/directory.pkl', 'rb') as file:
         keywords = pickle.load(file)
     return keywords
@@ -114,13 +120,9 @@ def make_articles_data():
         elems['pairs'] = pairs
         context_and_pairs.append(elems)
 
+    move_to_root()
     with open('knowledge_extraction/relation_extraction/data/context_and_pairs.pkl', 'wb') as file:
         pickle.dump(context_and_pairs, file)
 
-data = load_dataset('docred', trust_remote_code=True)
-datasets = [
-    ('validation', 998),
-    ('test', 1000),
-    ('train_annotated', 3035),
-    ('train_distant', 101873)
-]
+#data = load_dataset('docred', trust_remote_code=True)
+#make_articles_data()
