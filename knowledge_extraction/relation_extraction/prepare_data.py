@@ -1,10 +1,12 @@
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+from datasets import load_dataset
 from torch import nn
 import os
 import json
 import torch
 import pickle
 import re
+
 from _RE import merge_result, combine_entities
 
 model_name = 'dslim/distilbert-NER'
@@ -80,34 +82,44 @@ def create_entity_pairs(entities):
                 
     return list(pairs)
 
+def get_articles():
+    current_directory = os.path.abspath(os.path.dirname(__file__))
+    two_layers_up = os.path.dirname(os.path.dirname(current_directory))
+    file = open('scraping/articles/filtered_articles.json', 'r')
+    articles = file.read()
+    articles = json.loads(articles)
+    return articles
 
+def get_keywords():
+    with open('keyword_matching/directory.pkl', 'rb') as file:
+        keywords = pickle.load(file)
+    return keywords
 
-current_directory = os.path.abspath(os.path.dirname(__file__))
-two_layers_up = os.path.dirname(os.path.dirname(current_directory))
-#new_path = os.path.join(two_layers_up, 'scraping', 'articles')
-#print(new_path)
+custom_keywords = get_keywords()
 
-file = open('scraping/articles/filtered_articles.json', 'r')
-articles = file.read()
-articles = json.loads(articles)
+def get_articles_data():
+    articles = get_articles()
+    context_and_pairs = []
+    length = len(articles)
+    print(length)
+    for i, article in enumerate(articles):
+        print(f"{(i/length)*100:.3f}%")
+        elems = {}
 
-with open('keyword_matching/directory.pkl', 'rb') as file:
-    custom_keywords = pickle.load(file)
+        context = article['text']
+        entities = identify_entities(context, custom_keywords)
+        pairs = create_entity_pairs(entities)
 
-print(custom_keywords)
+        elems['context'] = article['text']
+        elems['pairs'] = pairs
+        context_and_pairs.append(elems)
 
-context_and_pairs = []
-for article in articles[:2]:
-    print(article)
-    elems = {}
+    with open('knowledge_extraction/relation_extraction/data/context_and_pairs.pkl', 'wb') as file:
+        pickle.dump(context_and_pairs, file)
 
-    context = article['text']
-    entities = identify_entities(context, custom_keywords)
-    pairs = create_entity_pairs(entities)
-
-    elems['context'] = article['text']
-    elems['pairs'] = pairs
-    context_and_pairs.append(elems)
-
-with open('data/context_and_pairs.pkl', 'wb') as file:
-    pickle.dump(context_and_pairs, file)
+def get_training_and_test_data():
+    data = load_dataset('docred', trust_remote_code=True)
+    datasets = [
+        ('train_annotated', 3035),
+        ('train_distant', 101873)
+    ]
