@@ -66,22 +66,34 @@ def identify_entities(paragraphs, custom_keywords, model_name = 'dslim/distilber
 def create_entity_pairs(entities):
     '''
     `entities` contains separate lists of NER-identified entities and keyword-matched entities
-    Returns a set of heterogeneous entity pairs for form (('name', 'entity'), ('name', 'entity))
+    Returns a list of dictionaries with the format:
+    {
+        "e1": "entity1_name",
+        "e1_type": "entity1_type",
+        "e2": "entity2_name",
+        "e2_type": "entity2_type"
+    }
     For N entities, `create_entity_pairs` returns a list of maximum length N^2-N
     '''
     joined = []
     joined.extend(entities['NER'])
     joined.extend(entities['Keywords'])
     pairs = set()
-    
+
     for i, entity1 in enumerate(joined):
         for j, entity2 in enumerate(joined):
             if i != j:
-                # Use a sorted tuple to avoid duplicates where order does not matter
-                pair = tuple(sorted((tuple([entity1['word'], entity1['entity']]), tuple([entity2['word'], entity2['entity']]))))
+                pair = (
+                    entity1['word'], entity1['entity'],
+                    entity2['word'], entity2['entity']
+                )
                 pairs.add(pair)
-                
-    return list(pairs)
+
+    # Convert set of tuples back to list of dictionaries
+    return [
+        {"e1": e1, "e1_type": e1_type, "e2": e2, "e2_type": e2_type}
+        for e1, e1_type, e2, e2_type in pairs
+    ]
 
 def move_to_root():
     current_directory = os.path.abspath(os.path.dirname(__file__))

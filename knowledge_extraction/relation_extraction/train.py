@@ -1,8 +1,6 @@
 from transformers import AutoModelForTokenClassification
 import torch.nn as nn
 
-
-
 class RelationExtractionModel(nn.Module):
     def __init__(self, distilbert_model_name='distilbert-base-uncased', lstm_hidden_size=128, num_classes=97):
         super(RelationExtractionModel, self).__init__()

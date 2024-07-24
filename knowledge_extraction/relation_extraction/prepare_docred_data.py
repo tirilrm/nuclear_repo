@@ -2,14 +2,20 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification, pipelin
 from datasets import load_dataset
 import pandas as pd
 from _RE import join_text
-import pickle
+import json
+import importlib
 
+import prepare_articles_data
+importlib.reload(prepare_articles_data)
+from prepare_articles_data import identify_entities, create_entity_pairs, get_keywords, move_to_root
+
+print('Loading model...')
 model_name = 'dslim/distilbert-NER'
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 ner_model = AutoModelForTokenClassification.from_pretrained(model_name)
-dataset = load_dataset('docred', trust_remote_code=True)
 
-from prepare_articles_data import identify_entities, create_entity_pairs, get_keywords, move_to_root
+print('Loading dataset...')
+dataset = load_dataset('docred', trust_remote_code=True)
 
 ner_pipeline = pipeline('ner', model=ner_model, tokenizer=tokenizer)
 
@@ -23,21 +29,20 @@ def make_paragraphs(sents):
 datasets = [
     'validation',
     'test',
-    'train_annotated',
-    'train_distant'
+    #'train_annotated',
+    #'train_distant'
 ]
 
 custom_keywords = get_keywords()
-train_test_data = {}
-
 for datatype in datasets:
-    print('Now doing:', datatype)
     ds = pd.DataFrame(dataset[datatype])
     context_and_pairs = []
     length = len(ds)
+    length = 3
 
     for i in range(length):
-        print(f"{(i/length)*100:.3f}%")
+        if i % 100 == 0:
+            print(f"{datatype}: {(i/length)*100:.3f}%")
         elems = {}
         sents = ds.iloc[i]['sents']
         paragraphs = make_paragraphs(sents)
@@ -46,14 +51,10 @@ for datatype in datasets:
         elems['context'] = join_text(sents, fancy=False)
         elems['pairs'] = pairs
         context_and_pairs.append(elems)
-    
-    train_test_data[datatype] = context_and_pairs
 
-for e in context_and_pairs:
-    print(e['context'])
-    for p in e['pairs']:
-        print(p)
+    print(f'Saving {datatype} data')
+    move_to_root()
+    with open('ignore/docred_' + datatype +'_context_and_pairs.json', 'w', encoding='utf-8') as file:
+        json.dump(context_and_pairs, file, indent=4, ensure_ascii=False)
 
-move_to_root()
-with open('knowledge_extraction/relation_extraction/data/docred_context_and_pairs.pkl', 'wb') as file:
-    pickle.dump(context_and_pairs, file)
+print("Successfully finished preparing all datasets!")
