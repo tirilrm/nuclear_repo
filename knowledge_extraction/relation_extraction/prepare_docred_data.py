@@ -4,10 +4,13 @@ import pandas as pd
 from _RE import join_text
 import json
 import importlib
+import time
 
 import prepare_articles_data
 importlib.reload(prepare_articles_data)
 from prepare_articles_data import identify_entities, create_entity_pairs, get_keywords, move_to_root
+
+start = time.time()
 
 print('Loading model...')
 model_name = 'dslim/distilbert-NER'
@@ -29,7 +32,7 @@ def make_paragraphs(sents):
 datasets = [
     'validation',
     'test',
-    #'train_annotated',
+    'train_annotated',
     #'train_distant'
 ]
 
@@ -38,16 +41,20 @@ for datatype in datasets:
     ds = pd.DataFrame(dataset[datatype])
     context_and_pairs = []
     length = len(ds)
-    length = 3
 
     for i in range(length):
-        if i % 100 == 0:
+
+        if i % 9 == 0:
             print(f"{datatype}: {(i/length)*100:.3f}%")
+
         elems = {}
         sents = ds.iloc[i]['sents']
         paragraphs = make_paragraphs(sents)
         entities = identify_entities(paragraphs, custom_keywords)
         pairs = create_entity_pairs(entities)
+
+        elems['datatype'] = datatype
+        elems['id'] = i
         elems['context'] = join_text(sents, fancy=False)
         elems['pairs'] = pairs
         context_and_pairs.append(elems)
@@ -57,4 +64,6 @@ for datatype in datasets:
     with open('ignore/docred_' + datatype +'_context_and_pairs.json', 'w', encoding='utf-8') as file:
         json.dump(context_and_pairs, file, indent=4, ensure_ascii=False)
 
-print("Successfully finished preparing all datasets!")
+end = time.time()
+
+print(f"Finished preparing datasets in {(end-start)/60:.2f} minutes")

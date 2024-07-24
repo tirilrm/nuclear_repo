@@ -136,5 +136,4 @@ def make_articles_data():
     with open('knowledge_extraction/relation_extraction/data/context_and_pairs.pkl', 'wb') as file:
         pickle.dump(context_and_pairs, file)
 
-#data = load_dataset('docred', trust_remote_code=True)
 #make_articles_data()
