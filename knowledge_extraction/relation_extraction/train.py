@@ -252,4 +252,31 @@ class RelationExtractorBRNN(nn.Module):
             entities.extend(joined_result)
         
         return entities
+    
+    def tag_sents(self, sents, entities):
+        '''
+        Tags sentences with B-<entity type> at the start and E-<entity type> at the end of each identified entity.
+
+        Args:
+            sents (list): List of sentences (strings) to process for named entity tagging.
+            entities (list): List of lists containing entities for each sentence.
+
+        Returns:
+            list: List of tagged sentences.
+        '''
+        tagged_sents = []
+        for i, sent in enumerate(sents):
+            tagged_sent = sent
+            offset = 0
+            for entity in entities[i]:
+                start = entity['start'] + offset
+                end = entity['end'] + offset
+                word = entity['word']
+                b_tag = '<B-' + entity['entity'] + '> '
+                e_tag = ' <E-' + entity['entity'] + '>'
+                tagged_sent = tagged_sent[:start] + b_tag + word + e_tag + tagged_sent[end:]
+                offset += len(b_tag) + len(e_tag)
+            tagged_sents.append(tagged_sent)
+
+        return tagged_sents
         
