@@ -36,6 +36,7 @@ class RelationExtractorBRNN(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, num_classes, model_name):
         super(RelationExtractorBRNN, self).__init__()
         
+        self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.model_name = model_name
@@ -59,6 +60,15 @@ class RelationExtractorBRNN(nn.Module):
         out = self.fc(out[:, -1, :])
 
         return out
+    
+    def tokenize_input(self, context):
+        inputs = self.tokenizer(
+            context,
+            padding='max_length',
+            truncation=True,
+            max_length=self.input_size,
+            return_tensor='pt'
+        )
     
     #################################
     #### DocRED helper functions ####
@@ -277,7 +287,6 @@ class RelationExtractorBRNN(nn.Module):
                 tagged_sent = tagged_sent[:start] + b_tag + word + e_tag + tagged_sent[end:]
                 offset += len(b_tag) + len(e_tag)
             tagged_sents.append(tagged_sent)
+        tagged_text = " [SEP] ".join(tagged_sents)
 
-        return tagged_sents
-
-model = RelationExtractorBRNN(input_size, hidden_size, num_layers, num_classes, model_name)
+        return tagged_sents, tagged_text
