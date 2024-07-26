@@ -10,6 +10,7 @@ from transformers import pipeline, AutoTokenizer
 import json
 import pandas as pd
 import numpy as np
+import Levenshtein
 
 # Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -33,7 +34,7 @@ NOTES
 
 class RelationExtractorBRNN(nn.Module):
 
-    def __init__(self, input_size, hidden_size, num_layers, num_classes, model_name):
+    def __init__(self, input_size, hidden_size, num_layers, num_classes, model_name, threshold=0.7):
         super(RelationExtractorBRNN, self).__init__()
         
         self.input_size = input_size
@@ -46,6 +47,8 @@ class RelationExtractorBRNN(nn.Module):
         
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.ner_pipeline = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer)
+
+        self.threshold = threshold
 
     def forward(self, x):
 
@@ -69,6 +72,32 @@ class RelationExtractorBRNN(nn.Module):
             max_length=self.input_size,
             return_tensor='pt'
         )
+
+    ##############################################
+    #### Data pre-processing helper functions ####
+    ##############################################
+
+    def are_similar(self, e1, e2):
+        ratio = Levenshtein.ratio(e1[0], e2[0])
+        if ratio > self.threshold and e1[1] == e2[1]:
+            return True
+        return False
+
+    def make_pairs(self, entities):
+        entities_flattened = [[item['word'], item['entity']] for entity in entities for item in entity]
+        length = len(entities_flattened)
+        pairs = set()
+        for i in range(length):
+            for j in range(length):
+                if i != j:
+                    e1 = entities_flattened[i]
+                    e2 = entities_flattened[j]
+                    pair = (tuple(e1), tuple(e2))
+                    if not self.are_similar(e1, e2):
+                        pairs.add(pair)
+                    else:
+                        print(pair)
+        return list(pairs)
     
     #################################
     #### DocRED helper functions ####
