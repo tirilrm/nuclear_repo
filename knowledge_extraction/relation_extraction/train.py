@@ -279,4 +279,5 @@ class RelationExtractorBRNN(nn.Module):
             tagged_sents.append(tagged_sent)
 
         return tagged_sents
-        
+
+model = RelationExtractorBRNN(input_size, hidden_size, num_layers, num_classes, model_name)
