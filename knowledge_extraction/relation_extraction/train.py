@@ -7,16 +7,22 @@ from torch.utils.data import DataLoader
 from datasets import load_dataset
 from transformers import pipeline, AutoTokenizer
 
+import pickle
 import json
 import pandas as pd
 import numpy as np
 import Levenshtein
+import re
 
 # Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Model for NER 
 model_name = 'dslim/distilbert-NER'
+
+# Custom keywords
+with open('keyword_matching/directory.pkl', 'rb') as file:
+    keywords = pickle.load(file)
 
 # Hyperparameters
 input_size = 512
@@ -34,7 +40,7 @@ NOTES
 
 class RelationExtractorBRNN(nn.Module):
 
-    def __init__(self, input_size, hidden_size, num_layers, num_classes, model_name, threshold=0.7):
+    def __init__(self, input_size, hidden_size, num_layers, num_classes, model_name, custom_keywords=None, threshold=0.7):
         super(RelationExtractorBRNN, self).__init__()
         
         self.input_size = input_size
@@ -48,6 +54,7 @@ class RelationExtractorBRNN(nn.Module):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.ner_pipeline = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer)
 
+        self.custom_keywords = custom_keywords
         self.threshold = threshold
 
     def forward(self, x):
@@ -72,6 +79,12 @@ class RelationExtractorBRNN(nn.Module):
             max_length=self.input_size,
             return_tensor='pt'
         )
+
+        return inputs
+    
+    def preprocess_data(self):
+        pass
+    
 
     ##############################################
     #### Data pre-processing helper functions ####
@@ -275,7 +288,9 @@ class RelationExtractorBRNN(nn.Module):
     
     def extract_entities(self, sents):
         '''
-        Extracts and combines entities from a list of sentences using the NER pipeline and merging functions.
+        Extracts and combines entities from a list of sentences using 
+         1) NER pipeline and merging functions;
+         2) based on keyword watch if keywords given
 
         Args:
             sents (list): List of sentences (strings) to process for named entity recognition.
@@ -283,14 +298,39 @@ class RelationExtractorBRNN(nn.Module):
         Returns:
             list: List of combined entity dictionaries, each containing an entity type, score, start, end, and word.
         '''
-        entities = []
+        all_entities = []
+
         for sent in sents:
+
+            # NER entities
             ner_result = self.ner_pipeline(sent)
             merged_result = self.merge_result(ner_result)
             joined_result = self.combine_entities(merged_result)
-            entities.extend(joined_result)
+            for result in joined_result:
+                entity = {
+                    'word': result['word'],
+                    'entity': result['entity'],
+                    'start': result['start'],
+                    'end': result['end']
+                }
+                all_entities.append(entity)
         
-        return entities
+            # Keyword entities
+        if self.custom_keywords:
+            for label, terms in self.custom_keywords.items():
+                # Precompile the regex patterns
+                term_patterns = [re.compile(re.escape(term)) for term in terms]
+                for pattern in term_patterns:
+                    for match in pattern.finditer(sent):
+                        entity = {
+                            'word': match.group(),
+                            'entity': label,
+                            'start': match.start(),
+                            'end': match.end()
+                        }
+                        all_entities.append(entity)
+        
+        return all_entities
     
     def tag_sents(self, sents, entities):
         '''
@@ -319,3 +359,13 @@ class RelationExtractorBRNN(nn.Module):
         tagged_text = " [SEP] ".join(tagged_sents)
 
         return tagged_sents, tagged_text
+    
+model = RelationExtractorBRNN(
+    input_size, hidden_size, num_layers, num_classes, 
+    model_name, keywords, threshold=0.7
+)
+
+train, _, test, validation = model.get_data()
+
+
+
