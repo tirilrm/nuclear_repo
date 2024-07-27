@@ -82,9 +82,6 @@ class RelationExtractorBRNN(nn.Module):
 
         return inputs
     
-    def preprocess_data(self):
-        pass
-    
 
     ##############################################
     #### Data pre-processing helper functions ####
@@ -116,7 +113,26 @@ class RelationExtractorBRNN(nn.Module):
     #### DocRED helper functions ####
     #################################
 
-    def get_data(self, get_distant=False):
+    def get_preprocessed_data(self):
+        '''
+        what we want for training: 
+        - tagged sents
+        - entity pairs
+        - gold triplets
+
+        get the DocRED data using get_data():
+        for instance in docred_instances:
+            a1) get entities using extract_entities()
+            a2) make entity pairs using make_pairs()
+            b1) tag sents using tag_sents()
+            c1) make triplets using make_triplets()
+        
+        put in data loader?
+        return pairs, sents, triplets for train/test/validation
+        '''
+        pass
+
+    def load_data(self, get_distant=False):
         docred_data = load_dataset('docred', trust_remote_code=True)
         train_annotated = pd.DataFrame(docred_data['train_annontated'])
         train_distant = None
