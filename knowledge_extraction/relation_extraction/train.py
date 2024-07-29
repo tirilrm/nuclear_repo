@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import Levenshtein
 import re
+import time
 
 # Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -77,11 +78,55 @@ class RelationExtractorBRNN(nn.Module):
             padding='max_length',
             truncation=True,
             max_length=self.input_size,
-            return_tensor='pt'
+            return_tensors='pt'
         )
 
         return inputs
     
+    def preprocessor(self, docred_data, length=-1):
+        '''
+        what we want for training: 
+        - tagged sents
+        - entity pairs
+        - gold triplets
+
+        get the DocRED data using load_data():
+        for instance in docred_instances:
+            a1) get entities using extract_entities()
+            a2) make entity pairs using make_pairs()
+            b1) tag sents using tag_sents()
+            c1) make triplets using make_triplets()
+        
+        put in data loader?
+        return pairs, sents, triplets for train/test/validation
+        '''
+        start = time.time()
+        if length < 0:
+            length = len(docred_data)
+
+        data = {}
+        count = 0
+        for i in range(length):
+            _data = {}
+            sents, vertexSet, labels = self.get_info(docred_data.iloc[i])
+            entities = self.extract_entities(sents)
+            entity_pairs = self.make_pairs(entities)
+            _, tagged_text = self.tag_sents(sents, entities)
+            triplets = self.make_triplets(vertexSet, labels)
+            input = self.tokenize_input(tagged_text)
+            
+            _data['entity_pairs'] = entity_pairs
+            _data['sents'] = tagged_text
+            _data['input'] = input
+            _data['triplets'] = triplets
+            data[i] = _data
+
+            padding = input['attention_mask'][0].tolist().count(0)
+            if padding == 0:
+                count += 1
+        end = time.time()
+        print(f'Preprocessing took {(end-start)/60:.2f} min. {count} instances ({(count/length)*100:.2f}%) exceeded max length.')
+        return data
 
     ##############################################
     #### Data pre-processing helper functions ####
@@ -94,7 +139,11 @@ class RelationExtractorBRNN(nn.Module):
         return False
 
     def make_pairs(self, entities):
-        entities_flattened = [[item['word'], item['entity']] for entity in entities for item in entity]
+        try:
+            entities_flattened = [[item['word'], item['entity']] for entity in entities for item in entity]
+        except TypeError:
+            print('Typeerror: entity list is flat')
+            entities_flattened = [[item['word'], item['entity']] for item in entities]
         length = len(entities_flattened)
         pairs = set()
         for i in range(length):
@@ -106,35 +155,17 @@ class RelationExtractorBRNN(nn.Module):
                     if not self.are_similar(e1, e2):
                         pairs.add(pair)
                     else:
-                        print(pair)
+                        #print(pair)
+                        pass
         return list(pairs)
     
     #################################
     #### DocRED helper functions ####
     #################################
 
-    def get_preprocessed_data(self):
-        '''
-        what we want for training: 
-        - tagged sents
-        - entity pairs
-        - gold triplets
-
-        get the DocRED data using get_data():
-        for instance in docred_instances:
-            a1) get entities using extract_entities()
-            a2) make entity pairs using make_pairs()
-            b1) tag sents using tag_sents()
-            c1) make triplets using make_triplets()
-        
-        put in data loader?
-        return pairs, sents, triplets for train/test/validation
-        '''
-        pass
-
     def load_data(self, get_distant=False):
         docred_data = load_dataset('docred', trust_remote_code=True)
-        train_annotated = pd.DataFrame(docred_data['train_annontated'])
+        train_annotated = pd.DataFrame(docred_data['train_annotated'])
         train_distant = None
         if get_distant:
             train_distant = pd.DataFrame(docred_data['train_distant'])
@@ -317,6 +348,7 @@ class RelationExtractorBRNN(nn.Module):
         all_entities = []
 
         for sent in sents:
+            entities = []
 
             # NER entities
             ner_result = self.ner_pipeline(sent)
@@ -329,22 +361,23 @@ class RelationExtractorBRNN(nn.Module):
                     'start': result['start'],
                     'end': result['end']
                 }
-                all_entities.append(entity)
+                entities.append(entity)
         
             # Keyword entities
-        if self.custom_keywords:
-            for label, terms in self.custom_keywords.items():
-                # Precompile the regex patterns
-                term_patterns = [re.compile(re.escape(term)) for term in terms]
-                for pattern in term_patterns:
-                    for match in pattern.finditer(sent):
-                        entity = {
-                            'word': match.group(),
-                            'entity': label,
-                            'start': match.start(),
-                            'end': match.end()
-                        }
-                        all_entities.append(entity)
+            if self.custom_keywords:
+                for label, terms in self.custom_keywords.items():
+                    # Precompile the regex patterns
+                    term_patterns = [re.compile(re.escape(term)) for term in terms]
+                    for pattern in term_patterns:
+                        for match in pattern.finditer(sent):
+                            entity = {
+                                'word': match.group(),
+                                'entity': label,
+                                'start': match.start(),
+                                'end': match.end()
+                            }
+                            entities.append(entity)
+            all_entities.append(entities)
         
         return all_entities
     
@@ -381,7 +414,13 @@ model = RelationExtractorBRNN(
     model_name, keywords, threshold=0.7
 )
 
-train, _, test, validation = model.get_data()
+train, _, test, validation = model.load_data(get_distant=False)
 
+print('Preprocessing training data...')
+train_preprocessed = model.preprocessor(train)
 
+print('Preprocessing testing data...')
+test_preprocessed = model.preprocessor(test)
 
+print('Preprocessing validation data...')
+validation_preprocessed = model.preprocessor(validation)
