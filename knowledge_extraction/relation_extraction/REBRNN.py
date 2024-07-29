@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
 from datasets import load_dataset
-from transformers import pipeline, AutoTokenizer
+from transformers import pipeline, AutoTokenizer, DistilBertModel
 
 from difflib import SequenceMatcher
 import pickle
@@ -46,9 +46,35 @@ learning_rate = 0.001   # may require tuning
 batch_size = 64
 num_epochs = 5'''
 
+relation_mapping = {
+    'P6': 1, 'P17': 2, 'P19': 3, 'P20': 4, 'P22': 5, 'P25': 6, 'P26': 7, 'P27': 8, 'P30': 9, 'P31': 10,
+    'P35': 11, 'P36': 12, 'P37': 13, 'P39': 14, 'P40': 15, 'P50': 16, 'P54': 17, 'P57': 18, 'P58': 19,
+    'P69': 20, 'P86': 21, 'P102': 22, 'P108': 23, 'P112': 24, 'P118': 25, 'P123': 26, 'P127': 27, 'P131': 28,
+    'P136': 29, 'P137': 30, 'P140': 31, 'P150': 32, 'P155': 33, 'P156': 34, 'P159': 35, 'P161': 36, 'P162': 37,
+    'P166': 38, 'P170': 39, 'P171': 40, 'P172': 41, 'P175': 42, 'P176': 43, 'P178': 44, 'P179': 45, 'P190': 46,
+    'P194': 47, 'P205': 48, 'P206': 49, 'P241': 50, 'P264': 51, 'P272': 52, 'P276': 53, 'P279': 54, 'P355': 55,
+    'P361': 56, 'P364': 57, 'P400': 58, 'P403': 59, 'P449': 60, 'P463': 61, 'P488': 62, 'P495': 63, 'P527': 64,
+    'P551': 65, 'P569': 66, 'P570': 67, 'P571': 68, 'P576': 69, 'P577': 70, 'P580': 71, 'P582': 72, 'P585': 73,
+    'P607': 74, 'P674': 75, 'P676': 76, 'P706': 77, 'P710': 78, 'P737': 79, 'P740': 80, 'P749': 81, 'P800': 82,
+    'P807': 83, 'P840': 84, 'P937': 85, 'P1001': 86, 'P1056': 87, 'P1198': 88, 'P1336': 89, 'P1344': 90, 'P1365': 91,
+    'P1366': 92, 'P1376': 93, 'P1412': 94, 'P1441': 95, 'P3373': 96,
+    'no_relation': 0 
+}
+
+def custom_collate_fn(batch):
+    embeddings = torch.stack([item['embeddings'].squeeze(0) for item in batch], dim=0)
+    entity_pairs = [item['entity_pairs'] for item in batch]
+    labels = [item['labels'] for item in batch]
+    
+    return {
+        'embeddings': embeddings,
+        'entity_pairs': entity_pairs,
+        'labels': labels
+    }
+
 class RelationExtractorBRNN(nn.Module):
 
-    def __init__(self, input_size, hidden_size, num_layers, num_classes, batch_size, model_name, custom_keywords=None, threshold=0.7):
+    def __init__(self, input_size, hidden_size, num_layers, num_classes, batch_size, model_name, device, custom_keywords=None, threshold=0.7):
         super(RelationExtractorBRNN, self).__init__()
         
         self.input_size = input_size
@@ -57,11 +83,14 @@ class RelationExtractorBRNN(nn.Module):
         self.batch_size = batch_size
         self.model_name = model_name
         
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, bidirectional=True) #check if batch_first=True is required
+        self.lstm = nn.LSTM(input_size=768, hidden_size=self.hidden_size, num_layers=self.num_layers, bidirectional=True) #check if batch_first=True is required
         self.fc = nn.Linear(hidden_size*2, num_classes)
         
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.distilbert = DistilBertModel.from_pretrained(self.model_name)
         self.ner_pipeline = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer)
+
+        self.device = device
 
         self.custom_keywords = custom_keywords
         self.threshold = threshold
@@ -72,12 +101,8 @@ class RelationExtractorBRNN(nn.Module):
 
     def forward(self, x):
 
-        '''
-        x is the training data of input size 512
-        we need to prepare (and PAD) the DocRED training data for this purpose
-        '''
-        h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(device)
+        h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(self.device)
+        c0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(self.device)
 
         out, _ = self.lstm(x, (h0, c0))
         out = self.fc(out[:, -1, :])
@@ -90,9 +115,9 @@ class RelationExtractorBRNN(nn.Module):
         val_dataset = RelationExtractionDataset(val_preprocessed)
         test_dataset = RelationExtractionDataset(test_preprocessed)
 
-        self.train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
-        self.val_loader = DataLoader(val_dataset, batch_size=self.batch_size, shuffle=False)
-        self.test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
+        self.train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=custom_collate_fn)
+        self.val_loader = DataLoader(val_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=custom_collate_fn)
+        self.test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
     def tokenize_input(self, context):
         inputs = self.tokenizer(
@@ -135,19 +160,25 @@ class RelationExtractorBRNN(nn.Module):
             entity_pairs = self.make_pairs(entities)
             _, tagged_text = self.tag_sents(sents, entities)
             triplets = self.make_triplets(vertexSet, labels)
-            input = self.tokenize_input(tagged_text)
+            inputs = self.tokenize_input(tagged_text)
+            
+            with torch.no_grad():
+                embeddings = self.distilbert(**inputs).last_hidden_state.numpy()
             
             _data['entity_pairs'] = entity_pairs
             _data['sents'] = tagged_text
-            _data['input'] = input
+            _data['inputs'] = inputs
+            _data['embeddings'] = embeddings.tolist()
             _data['triplets'] = triplets
             data[i] = _data
 
-            padding = input['attention_mask'][0].tolist().count(0)
+            padding = inputs['attention_mask'][0].tolist().count(0)
             if padding == 0:
                 count += 1
+
         end = time.time()
         print(f'Preprocessing took {(end-start)/60:.2f} minutes. {count} instances ({(count/length)*100:.2f}%) exceeded max length.')
+        
         return data
 
     ##############################################
@@ -246,8 +277,8 @@ class RelationExtractorBRNN(nn.Module):
 
             head_entities = names[head_index]
             tail_entities = names[tail_index]
-            relation = [relation_id, relation_text]
-            triplets.append([head_entities, relation, tail_entities])
+            relation_num_id = relation_mapping.get(relation_id, 0)
+            triplets.append([head_entities, relation_num_id, tail_entities, [relation_id, relation_text]])
         
         return triplets
     
@@ -440,15 +471,13 @@ class RelationExtractionDataset(Dataset):
     
     def __getitem__(self, idx):
         item = self.data[idx]
-        input_ids = torch.tensor(item['input']['input_ids'][0])
-        attention_mask = torch.tensor(item['input']['attention_mask'][0])
-        labels = torch.tensor(item['triplets'])
+        embeddings = torch.tensor(item['embeddings'], dtype=torch.float32) 
+        labels = torch.tensor([triplet[1] for triplet in item['triplets']], dtype=torch.long)
         entity_pairs = item['entity_pairs']
         tagged_sents = item['sents']
 
         return {
-            'input_ids': input_ids,
-            'attention_mask': attention_mask,
+            'embeddings': embeddings,
             'labels': labels,
             'entity_pairs': entity_pairs,
             'tagged_sents': tagged_sents
@@ -460,7 +489,7 @@ class CustomLoss(nn.Module):
         self.threshold = threshold
         self.cross_entropy = nn.CrossEntropyLoss()
 
-    def similarity(a, b):
+    def similarity(self, a, b):
         return SequenceMatcher(None, a, b).ratio()
 
     def compute_instance_loss(self, entity_pairs, predictions, triplets):
@@ -486,7 +515,7 @@ class CustomLoss(nn.Module):
                         best_similarity = avg_similarity
                         best_relation = gold_relation
                 
-            output.append[[prediction, best_relation]]
+            output.append((prediction, best_relation))
 
         for pred, best_relation in output:
             target = torch.tensor(int(best_relation), dtype=torch.long, device=predictions.device)
@@ -501,4 +530,4 @@ class CustomLoss(nn.Module):
             instance_loss = self.compute_instance_loss(entity_pairs, predicitons, triplets)
             batch_loss += instance_loss
         
-        return batch_loss/len(batch_predictions)
+        return batch_loss / len(batch_predictions)
