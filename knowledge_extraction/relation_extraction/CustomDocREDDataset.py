@@ -101,12 +101,17 @@ class CustomDocREDDataset(Dataset):
             - embeded entity type layer
         - embeded triplets
         '''
+        print('Starting preprocessing...')
         start = time.time()
         if length < 0:
             length = len(docred_data)
 
         data = []
         for i in range(length):
+            if i % 50 == 0:
+                print(f"{(i/length)*100:.2f}% finished")
+            
+
             # Create entity pairs and triplets
             sents, vertexSet, labels = self.get_info(docred_data.iloc[i])
             entities = self.extract_entities(sents)
@@ -153,8 +158,21 @@ class CustomDocREDDataset(Dataset):
                 e1_end = sentence_offsets[e1['s_id']] + e1['pos'][1]
                 e2_start = sentence_offsets[e2['s_id']] + e2['pos'][0]
                 e2_end = sentence_offsets[e2['s_id']] + e2['pos'][1]
-                e1_emb = np.mean(text_embeddings[e1_start:e1_end], axis=0) # take the mean to simplify and reduce to one dimension
-                e2_emb = np.mean(text_embeddings[e2_start:e2_end], axis=0)
+
+                if e1_start >= e1_end or e2_start >= e2_end:
+                    print(f"Skipping pair with invalid indices: ({e1_start}, {e1_end}), ({e2_start}, {e2_end})")
+                    continue
+                
+                e1_slice = text_embeddings[e1_start:e1_end]
+                e2_slice = text_embeddings[e2_start:e2_end]
+
+                if e1_slice.size == 0 or e2_slice.size == 0:
+                    print(f"Empty slice detected: e1_slice size = {e1_slice.size}, e2_slice size = {e2_slice.size}")
+                    continue
+
+                e1_emb = np.mean(e1_slice, axis=0)
+                e2_emb = np.mean(e2_slice, axis=0)
+
                 entity_type_emb = self.get_entity_type_embedding(e1['entity'], e2['entity']).cpu().numpy()
                 pair_emb = np.concatenate((e1_emb, e2_emb, entity_type_emb[0], entity_type_emb[1]), axis=0)
                 pair_embeddings.append(pair_emb)
@@ -289,14 +307,28 @@ class CustomDocREDDataset(Dataset):
         for i, word in enumerate(words):
             word_length = len(word)
             
-            if current_char_index <= start < current_char_index + word_length:
+            # Adjust for leading spaces
+            while current_char_index < len(sent) and sent[current_char_index] == ' ':
+                current_char_index += 1
+
+            if start_word_index == -1 and current_char_index <= start < current_char_index + word_length:
                 start_word_index = i
+            
             if current_char_index < end <= current_char_index + word_length:
                 end_word_index = i + 1
             
             current_char_index += word_length + 1
+            
             if start_word_index != -1 and end_word_index != -1:
                 break
+
+        if end_word_index == -1:
+            end_word_index = len(words)
+        
+        if start_word_index == -1 or end_word_index == -1:
+            print(f"Sentence: {sent}")
+            print(f"Start index: {start}, End index: {end}")
+            print(f"Computed start_word_index: {start_word_index}, end_word_index: {end_word_index}")
 
         return [start_word_index, end_word_index]
 
