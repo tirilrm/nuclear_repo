@@ -34,8 +34,8 @@ class CustomDocREDDataset(Dataset):
         self.ner_pipeline = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer)
 
         # Define an embedding layer for entity types
-        self.entity_type_embedding = nn.Embedding(num_embeddings=11, embedding_dim=self.distilbert.config.hidden_size)
         self.entity_type_to_id = {'O': 0, 'PER': 1, 'ORG': 2, 'LOC': 3, 'MISC': 4, 'FUEL': 5, 'FUEL_CYCLE': 6, 'SMR_DESIGN': 7, 'REACTOR': 8, 'SMR': 9, 'POLITICAL': 10} 
+        self.entity_type_embedding = nn.Embedding(num_embeddings=len(self.entity_type_to_id), embedding_dim=self.distilbert.config.hidden_size)
 
         # Relation mapping for output layer
         self.relation_mapping = {
@@ -59,7 +59,7 @@ class CustomDocREDDataset(Dataset):
         
         data = load_dataset('docred', trust_remote_code=True)
         self.raw_data = pd.DataFrame(data[dataset])
-        #self.preprocessed_data = self.preprocessor(self.raw_data, length=self.length)
+        self.preprocessed_data = self.preprocessor(self.raw_data, length=self.length)
         #self.data_loader = DataLoader(self.preprocessed_data, batch_size=self.batch_size, shuffle=shuffle, collate_fn=custom_collate_fn)
     
     def __len__(self):
@@ -79,7 +79,7 @@ class CustomDocREDDataset(Dataset):
             'tagged_sents': tagged_sents
         }
 
-    def tokenize_input(self, context):
+    #def tokenize_input(self, context):
         if isinstance(context, str):
             context = [context]
 
@@ -100,62 +100,87 @@ class CustomDocREDDataset(Dataset):
         - embeded entitiy pairs
             - embeded entity type layer
         - embeded triplets
-
-        get the DocRED data using load_data():
-        for instance in docred_instances:
-            a1) get entities using extract_entities()
-            a2) make entity pairs using make_pairs()
-            b1) tag sents using tag_sents()
-            c1) make triplets using make_triplets()
-        
-        put in data loader?
-        return pairs, sents, triplets for train/test/validation
         '''
         start = time.time()
         if length < 0:
             length = len(docred_data)
 
         data = []
-        count = 0
-
         for i in range(length):
             # Create entity pairs and triplets
             sents, vertexSet, labels = self.get_info(docred_data.iloc[i])
             entities = self.extract_entities(sents)
             indexed_entities = self.get_entity_positions(sents, entities)
-            entity_pairs = self.make_pairs(indexed_entities)
+            indexed_pairs = self.make_pairs(indexed_entities)
             indexed_triplets = self.make_triplets(vertexSet, labels)
 
-            # Embed the input text (sents)
-            inputs = self.tokenize_input(' '.join(sents))
-            with torch.no_grad():
-                outputs = self.distilbert(**inputs)
-                embeddings = outputs.last_hidden_state.numpy() # Use these embeddings to embed the entity pairs and triplets
-
-            # Get entity pairs and triplet embeddings from the embeded input text
-            entity_pair_embeddings = []
-            for e in indexed_entities:
-                pass
-
-            triplet_embeddings = []
-            for triplet in indexed_triplets:
-                pass
+            # Get the embeded data
+            text_emb, pair_emb, triplet_emb = self.embed_data(sents, indexed_pairs, indexed_triplets)
 
             data.append({
-                'entity_pair_embeddings': entity_pair_embeddings,
-                'inputs': inputs,
-                'embeddings': embeddings.tolist(),
-                'triplet_embeddings': triplet_embeddings
+                'text_embeddings': text_emb,
+                'pair_embeddings': pair_emb,
+                'triplet_embeddings': triplet_emb
             })
 
-            padding = inputs['attention_mask'][0].tolist().count(0)
-            if padding == 0:
-                count += 1
-
         end = time.time()
-        print(f'Preprocessing took {(end-start)/60:.2f} minutes. {count} instances ({(count/length)*100:.2f}%) exceeded max length.')
+        print(f'Preprocessing took {(end-start)/60:.2f} minutes.')
         
         return data
+    
+    def embed_data(self, sents, indexed_pairs, indexed_triplets):
+        full_text = ' '.join(sents)
+        inputs = self.tokenizer(
+            full_text, 
+            return_tensors='pt', 
+            padding='max_length', 
+            max_length=self.input_size,
+            truncation=True
+        )
+
+        with torch.no_grad():
+            outputs = self.distilbert(**inputs)
+            text_embeddings = outputs.last_hidden_state[0].cpu().numpy()
+
+            sentence_offsets = [0]
+            for sent in sents:
+                sentence_offsets.append(sentence_offsets[-1] + len(sent.split(' ')))
+            
+            pair_embeddings = []
+            for pair in indexed_pairs:
+                e1, e2 = pair
+                e1_start = sentence_offsets[e1['s_id']] + e1['pos'][0]
+                e1_end = sentence_offsets[e1['s_id']] + e1['pos'][1]
+                e2_start = sentence_offsets[e2['s_id']] + e2['pos'][0]
+                e2_end = sentence_offsets[e2['s_id']] + e2['pos'][1]
+                e1_emb = np.mean(text_embeddings[e1_start:e1_end], axis=0) # take the mean to simplify and reduce to one dimension
+                e2_emb = np.mean(text_embeddings[e2_start:e2_end], axis=0)
+                entity_type_emb = self.get_entity_type_embedding(e1['entity'], e2['entity']).cpu().numpy()
+                pair_emb = np.concatenate((e1_emb, e2_emb, entity_type_emb[0], entity_type_emb[1]), axis=0)
+                pair_embeddings.append(pair_emb)
+            
+            triplet_embeddings = []
+            for triplet in indexed_triplets:
+                head_embs = [np.mean(text_embeddings[sentence_offsets[h['s_id']] + h['pos'][0]:sentence_offsets[h['s_id']] + h['pos'][1]], axis=0) for h in triplet['head']]
+                tail_embs = [np.mean(text_embeddings[sentence_offsets[t['s_id']] + t['pos'][0]:sentence_offsets[t['s_id']] + t['pos'][1]], axis=0) for t in triplet['tail']]
+                head_embedding = np.concatenate(head_embs, axis=0)
+                tail_embedding = np.concatenate(tail_embs, axis=0)
+                relation_id = triplet['relation']['id'] # keep relation id as is
+                triplet_embeddings.append((head_embedding, relation_id, tail_embedding))
+        
+        return text_embeddings, pair_embeddings, triplet_embeddings
+    
+    def get_entity_type_embedding(self, e1_type, e2_type):
+        e1_type_id = torch.tensor([self.entity_type_to_id[e1_type]], dtype=torch.long)
+        e2_type_id = torch.tensor([self.entity_type_to_id[e2_type]], dtype=torch.long)
+
+        e1_type_emb = self.entity_type_embedding(e1_type_id).squeeze(0)
+        e2_type_emb = self.entity_type_embedding(e2_type_id).squeeze(0)
+
+        entity_type_emb = torch.stack((e1_type_emb, e2_type_emb), dim=1)
+        
+        return entity_type_emb
+
 
     def get_info(self, instance):
         sents_raw = instance['sents']
@@ -242,9 +267,18 @@ class CustomDocREDDataset(Dataset):
                     e1 = indexed_entities[i]
                     e2 = indexed_entities[j]
                     if not self.are_similar(e1, e2):
-                        pair = ((e1['s_id'], tuple(e1['pos'])), (e2['s_id'], tuple(e2['pos'])))
+                        pair = (
+                            (e1['s_id'], tuple(e1['pos']), e1['entity']),
+                            (e2['s_id'], tuple(e2['pos']), e2['entity'])
+                        )
                         pairs.add(pair)
-        return list(pairs)
+        pairs_list = [
+            (
+                {'s_id': pair[0][0], 'pos': list(pair[0][1]), 'entity': pair[0][2]},
+                {'s_id': pair[1][0], 'pos': list(pair[1][1]), 'entity': pair[1][2]}
+            ) for pair in pairs
+        ]
+        return pairs_list
 
     def char_to_word_positions(self, sent, start, end):
         words = sent.split()
