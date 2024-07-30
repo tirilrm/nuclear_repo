@@ -17,103 +17,6 @@ import re
 import time
 import os
 
-'''
-NOTES
-- hidden_size must be multiplied by 2 since it's bidirectional; one layer going forward and one going backward
-'''
-
-'''
-# Set device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-# Model for NER 
-model_name = 'dslim/distilbert-NER'
-
-# Custom keywords
-try:
-    with open('keyword_matching/directory.pkl', 'rb') as file:
-        keywords = pickle.load(file)
-except FileNotFoundError or FileExistsError:
-    with open('directory.pkl', 'rb') as file:
-        keywords = pickle.load(file)
-
-# Hyperparameters
-input_size = 512
-num_layers = 4          # may require tuning
-hidden_size = 256       # may require tuning
-num_classes = 97        # 96 different relations plus '0' for no relation
-learning_rate = 0.001   # may require tuning
-batch_size = 64
-num_epochs = 5'''
-
-relation_mapping = {
-    'P6': 1, 'P17': 2, 'P19': 3, 'P20': 4, 'P22': 5, 'P25': 6, 'P26': 7, 'P27': 8, 'P30': 9, 'P31': 10,
-    'P35': 11, 'P36': 12, 'P37': 13, 'P39': 14, 'P40': 15, 'P50': 16, 'P54': 17, 'P57': 18, 'P58': 19,
-    'P69': 20, 'P86': 21, 'P102': 22, 'P108': 23, 'P112': 24, 'P118': 25, 'P123': 26, 'P127': 27, 'P131': 28,
-    'P136': 29, 'P137': 30, 'P140': 31, 'P150': 32, 'P155': 33, 'P156': 34, 'P159': 35, 'P161': 36, 'P162': 37,
-    'P166': 38, 'P170': 39, 'P171': 40, 'P172': 41, 'P175': 42, 'P176': 43, 'P178': 44, 'P179': 45, 'P190': 46,
-    'P194': 47, 'P205': 48, 'P206': 49, 'P241': 50, 'P264': 51, 'P272': 52, 'P276': 53, 'P279': 54, 'P355': 55,
-    'P361': 56, 'P364': 57, 'P400': 58, 'P403': 59, 'P449': 60, 'P463': 61, 'P488': 62, 'P495': 63, 'P527': 64,
-    'P551': 65, 'P569': 66, 'P570': 67, 'P571': 68, 'P576': 69, 'P577': 70, 'P580': 71, 'P582': 72, 'P585': 73,
-    'P607': 74, 'P674': 75, 'P676': 76, 'P706': 77, 'P710': 78, 'P737': 79, 'P740': 80, 'P749': 81, 'P800': 82,
-    'P807': 83, 'P840': 84, 'P937': 85, 'P1001': 86, 'P1056': 87, 'P1198': 88, 'P1336': 89, 'P1344': 90, 'P1365': 91,
-    'P1366': 92, 'P1376': 93, 'P1412': 94, 'P1441': 95, 'P3373': 96,
-    'no_relation': 0 
-}
-
-def custom_collate_fn(batch):
-    embeddings = torch.stack([item['embeddings'].squeeze(0) for item in batch], dim=0)
-    entity_pairs = [item['entity_pairs'] for item in batch]
-    labels = [item['labels'] for item in batch]
-    
-    return {
-        'embeddings': embeddings,
-        'entity_pairs': entity_pairs,
-        'labels': labels
-    }
-
-class RelationExtractorBRNN(nn.Module):
-
-    def __init__(self, input_size, hidden_size, num_layers, num_classes, batch_size, model_name, device, threshold=0.7):
-        super(RelationExtractorBRNN, self).__init__()
-        
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.batch_size = batch_size
-        self.model_name = model_name
-        
-        self.lstm = nn.LSTM(input_size=768, hidden_size=self.hidden_size, num_layers=self.num_layers, bidirectional=True) #check if batch_first=True is required
-        self.fc = nn.Linear(hidden_size*2, num_classes)
-        
-        self.device = device
-
-        self.threshold = threshold
-
-        self.train_loader = None
-        self.val_loader = None
-        self.test_loader = None
-
-    def forward(self, x):
-
-        h0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(self.device)
-        c0 = torch.zeros(self.num_layers*2, x.size(0), self.hidden_size).to(self.device)
-
-        out, _ = self.lstm(x, (h0, c0))
-        out = self.fc(out[:, -1, :])
-
-        return out
-    
-    #def set_data_loaders(self, train_preprocessed, val_preprocessed, test_preprocessed):
-
-        train_dataset = RelationExtractionDataset(train_preprocessed)
-        val_dataset = RelationExtractionDataset(val_preprocessed)
-        test_dataset = RelationExtractionDataset(test_preprocessed)
-
-        self.train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=custom_collate_fn)
-        self.val_loader = DataLoader(val_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=custom_collate_fn)
-        self.test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=custom_collate_fn)
-        pass
 
 class CustomDocREDDataset(Dataset):
     def __init__(self, dataset, input_size, batch_size, model_name, custom_keywords, device, shuffle=True, threshold=0.8, length=-1):
@@ -130,14 +33,34 @@ class CustomDocREDDataset(Dataset):
         self.distilbert = DistilBertModel.from_pretrained(self.model_name)
         self.ner_pipeline = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer)
 
+        # Define an embedding layer for entity types
+        self.entity_type_embedding = nn.Embedding(num_embeddings=11, embedding_dim=self.distilbert.config.hidden_size)
+        self.entity_type_to_id = {'O': 0, 'PER': 1, 'ORG': 2, 'LOC': 3, 'MISC': 4, 'FUEL': 5, 'FUEL_CYCLE': 6, 'SMR_DESIGN': 7, 'REACTOR': 8, 'SMR': 9, 'POLITICAL': 10} 
+
+        # Relation mapping for output layer
+        self.relation_mapping = {
+            'P6': 1, 'P17': 2, 'P19': 3, 'P20': 4, 'P22': 5, 'P25': 6, 'P26': 7, 'P27': 8, 'P30': 9, 'P31': 10,
+            'P35': 11, 'P36': 12, 'P37': 13, 'P39': 14, 'P40': 15, 'P50': 16, 'P54': 17, 'P57': 18, 'P58': 19,
+            'P69': 20, 'P86': 21, 'P102': 22, 'P108': 23, 'P112': 24, 'P118': 25, 'P123': 26, 'P127': 27, 'P131': 28,
+            'P136': 29, 'P137': 30, 'P140': 31, 'P150': 32, 'P155': 33, 'P156': 34, 'P159': 35, 'P161': 36, 'P162': 37,
+            'P166': 38, 'P170': 39, 'P171': 40, 'P172': 41, 'P175': 42, 'P176': 43, 'P178': 44, 'P179': 45, 'P190': 46,
+            'P194': 47, 'P205': 48, 'P206': 49, 'P241': 50, 'P264': 51, 'P272': 52, 'P276': 53, 'P279': 54, 'P355': 55,
+            'P361': 56, 'P364': 57, 'P400': 58, 'P403': 59, 'P449': 60, 'P463': 61, 'P488': 62, 'P495': 63, 'P527': 64,
+            'P551': 65, 'P569': 66, 'P570': 67, 'P571': 68, 'P576': 69, 'P577': 70, 'P580': 71, 'P582': 72, 'P585': 73,
+            'P607': 74, 'P674': 75, 'P676': 76, 'P706': 77, 'P710': 78, 'P737': 79, 'P740': 80, 'P749': 81, 'P800': 82,
+            'P807': 83, 'P840': 84, 'P937': 85, 'P1001': 86, 'P1056': 87, 'P1198': 88, 'P1336': 89, 'P1344': 90, 'P1365': 91,
+            'P1366': 92, 'P1376': 93, 'P1412': 94, 'P1441': 95, 'P3373': 96,
+            'no_relation': 0 
+        }
+
         # Get the data via the transformers library
         if dataset not in ['train_annotated', 'train_distant', 'test', 'validation']:
             raise ValueError('Data set does not exist')
         
         data = load_dataset('docred', trust_remote_code=True)
         self.raw_data = pd.DataFrame(data[dataset])
-        self.preprocessed_data = self.preprocessor(self.raw_data, length=self.length)
-        self.data_loader = DataLoader(self.preprocessed_data, batch_size=self.batch_size, shuffle=shuffle, collate_fn=custom_collate_fn)
+        #self.preprocessed_data = self.preprocessor(self.raw_data, length=self.length)
+        #self.data_loader = DataLoader(self.preprocessed_data, batch_size=self.batch_size, shuffle=shuffle, collate_fn=custom_collate_fn)
     
     def __len__(self):
         return len(self.preprocessed_data)
@@ -173,9 +96,10 @@ class CustomDocREDDataset(Dataset):
     def preprocessor(self, docred_data, length):
         '''
         what we want for training: 
-        - tagged sents
-        - entity pairs
-        - gold triplets
+        - embeded sents
+        - embeded entitiy pairs
+            - embeded entity type layer
+        - embeded triplets
 
         get the DocRED data using load_data():
         for instance in docred_instances:
@@ -194,64 +118,33 @@ class CustomDocREDDataset(Dataset):
         data = []
         count = 0
 
-        batch_size = 16
-        for batch_start in range(0, length, batch_size):
-            batch_end = min(batch_start + batch_size, length)
-            batch_data = docred_data.iloc[batch_start:batch_end]
-
-            sents_list = []
-            vertexSet_list = []
-            labels_list = []
-
-            for instance in batch_data.itertuples():
-                sents, vertexSet, labels = self.get_info(instance)
-                sents_list.append(sents)
-                vertexSet_list.append(vertexSet)
-                labels_list.append(labels)
-
         for i in range(length):
+            # Create entity pairs and triplets
             sents, vertexSet, labels = self.get_info(docred_data.iloc[i])
             entities = self.extract_entities(sents)
-            entity_pairs = self.make_pairs(entities)
-            _, tagged_text = self.tag_sents(sents, entities)
-            triplets = self.make_triplets(vertexSet, labels)
-            inputs = self.tokenize_input(tagged_text)
-            
+            indexed_entities = self.get_entity_positions(sents, entities)
+            entity_pairs = self.make_pairs(indexed_entities)
+            indexed_triplets = self.make_triplets(vertexSet, labels)
+
+            # Embed the input text (sents)
+            inputs = self.tokenize_input(' '.join(sents))
             with torch.no_grad():
                 outputs = self.distilbert(**inputs)
-                embeddings = outputs.last_hidden_state.numpy()
+                embeddings = outputs.last_hidden_state.numpy() # Use these embeddings to embed the entity pairs and triplets
 
-                entity_pair_embeddings = []
-                for pair in entity_pairs:
-                    pair_inputs = self.tokenize_input(pair)
-                    pair_outputs = self.distilbert(**pair_inputs)
-                    entity_pair_embeddings.append(pair_outputs.last_hidden_state.numpy())
-                
-                triplet_embeddings = []
-                for triplet in triplets:
-                    triplet_inputs_heads = self.tokenize_input(triplet[0])
-                    triplet_inputs_tails = self.tokenize_input(triplet[2])
+            # Get entity pairs and triplet embeddings from the embeded input text
+            entity_pair_embeddings = []
+            for e in indexed_entities:
+                pass
 
-                    triplet_outputs_heads = self.distilbert(**triplet_inputs_heads)
-                    triplet_outputs_tails = self.distilbert(**triplet_inputs_tails)
-
-                    head_embedding = triplet_outputs_heads.last_hidden_state.numpy()
-                    tail_embedding = triplet_outputs_tails.last_hidden_state.numpy()
-                    relation_label = triplet[1]
-
-                    triplet_embeddings.append({
-                        'head_embedding': head_embedding,
-                        'relation_label': relation_label,
-                        'tail_embedding': tail_embedding
-                    })
+            triplet_embeddings = []
+            for triplet in indexed_triplets:
+                pass
 
             data.append({
-                'entity_pairs': entity_pairs,
                 'entity_pair_embeddings': entity_pair_embeddings,
-                'sents': tagged_text,
                 'inputs': inputs,
                 'embeddings': embeddings.tolist(),
-                'triplets': triplets,
                 'triplet_embeddings': triplet_embeddings
             })
 
@@ -264,40 +157,13 @@ class CustomDocREDDataset(Dataset):
         
         return data
 
-    ##############################################
-    #### Data pre-processing helper functions ####
-    ##############################################
+    def get_info(self, instance):
+        sents_raw = instance['sents']
+        sents = [' '.join(sublist) for sublist in sents_raw]
+        vertexSet = instance['vertexSet']
+        labels = instance['labels']
 
-    def are_similar(self, e1, e2):
-        ratio = Levenshtein.ratio(e1[0], e2[0])
-        if ratio > self.threshold and e1[1] == e2[1]:
-            return True
-        return False
-
-    def make_pairs(self, entities):
-        try:
-            entities_flattened = [[item['word'], item['entity']] for entity in entities for item in entity]
-        except TypeError:
-            print('Typeerror: entity list is flat')
-            entities_flattened = [[item['word'], item['entity']] for item in entities]
-        length = len(entities_flattened)
-        pairs = set()
-        for i in range(length):
-            for j in range(length):
-                if i != j:
-                    e1 = entities_flattened[i]
-                    e2 = entities_flattened[j]
-                    pair = (tuple(e1), tuple(e2))
-                    if not self.are_similar(e1, e2):
-                        pairs.add(pair)
-                    else:
-                        #print(pair)
-                        pass
-        return list(pairs)
-    
-    #################################
-    #### DocRED helper functions ####
-    #################################
+        return sents, vertexSet, labels
 
     #def load_data(self, get_distant=False):
         pass
@@ -310,15 +176,11 @@ class CustomDocREDDataset(Dataset):
         validation = pd.DataFrame(docred_data['validation'])
 
         return train_annotated, train_distant, test, validation
-    
-    def get_info(self, instance):
-        sents_raw = instance['sents']
-        sents = [' '.join(sublist) for sublist in sents_raw]
-        vertexSet = instance['vertexSet']
-        labels = instance['labels']
+   
+    ###########################################
+    #### Triplet Creation Helper Functions ####
+    ###########################################
 
-        return sents, vertexSet, labels
-    
     def make_triplets(self, vertexSet, labels):
         '''
         Constructs triplets from vertex set and labels.
@@ -332,9 +194,6 @@ class CustomDocREDDataset(Dataset):
                 - `head` and `tail` contain lists of one or more entities (len > 1 in case of synonyms, e.g., Swedish and Sweden).
                 - `relation` contains relation_id and corresponding relation_text.
         '''
-
-        names = []
-        types = []
         triplets = []
 
         head = labels['head'] # contains vertexSet indices of heads
@@ -345,13 +204,6 @@ class CustomDocREDDataset(Dataset):
         if not len(head) == len(tail) == len(relation_texts) == len(relation_ids):
             raise ValueError("Labels are not unform length")
 
-        # Get names and types from vertexSet
-        for entities in vertexSet:
-            sub_names = [entity['name'] for entity in entities]
-            sub_types = [entity['type'] for entity in entities]
-            names.append(sub_names)
-            types.append(sub_types)
-
         # Construct triplets
         for i in range(len(head)):
             head_index = head[i]
@@ -359,16 +211,60 @@ class CustomDocREDDataset(Dataset):
             relation_id = relation_ids[i]
             relation_text = relation_texts[i]
 
-            head_entities = names[head_index]
-            tail_entities = names[tail_index]
-            relation_num_id = relation_mapping.get(relation_id, 0)
-            triplets.append([head_entities, relation_num_id, tail_entities, [relation_id, relation_text]])
-        
+            head_entities = vertexSet[head_index]
+            tail_entities = vertexSet[tail_index]
+            relation_num_id = self.relation_mapping.get(relation_id, 0)
+
+            head_indices = [{'s_id': entity['sent_id'], 'pos': entity['pos']} for entity in head_entities]
+            tail_indices = [{'s_id': entity['sent_id'], 'pos': entity['pos']} for entity in tail_entities]
+
+            triplets.append({
+                'head': head_indices,
+                'relation': {'id': relation_num_id, 'text': relation_text},
+                'tail': tail_indices
+            })
         return triplets
     
-    #######################################
-    #### (Distil)BERT helper functions ####
-    #######################################
+    ###########################################
+    #### NER Entity Pairs Helper Functions ####
+    ###########################################
+
+    def are_similar(self, e1, e2):
+        ratio = Levenshtein.ratio(e1['word'], e2['word'])
+        return ratio > self.threshold and e1['entity'] == e2['entity']
+
+    def make_pairs(self, indexed_entities):
+        length = len(indexed_entities)
+        pairs = set()
+        for i in range(length):
+            for j in range(length):
+                if i != j:
+                    e1 = indexed_entities[i]
+                    e2 = indexed_entities[j]
+                    if not self.are_similar(e1, e2):
+                        pair = ((e1['s_id'], tuple(e1['pos'])), (e2['s_id'], tuple(e2['pos'])))
+                        pairs.add(pair)
+        return list(pairs)
+
+    def char_to_word_positions(self, sent, start, end):
+        words = sent.split()
+        current_char_index = 0
+        start_word_index = -1
+        end_word_index = -1
+
+        for i, word in enumerate(words):
+            word_length = len(word)
+            
+            if current_char_index <= start < current_char_index + word_length:
+                start_word_index = i
+            if current_char_index < end <= current_char_index + word_length:
+                end_word_index = i + 1
+            
+            current_char_index += word_length + 1
+            if start_word_index != -1 and end_word_index != -1:
+                break
+
+        return [start_word_index, end_word_index]
 
     def merge_result(self, entities):
         '''
@@ -486,15 +382,17 @@ class CustomDocREDDataset(Dataset):
         '''
         all_entities = []
 
-        for sent in sents:
+        for i, sent in enumerate(sents):
             entities = []
 
             # NER entities
             ner_result = self.ner_pipeline(sent)
             merged_result = self.merge_result(ner_result)
             joined_result = self.combine_entities(merged_result)
+
             for result in joined_result:
                 entity = {
+                    's_id': i,
                     'word': result['word'],
                     'entity': result['entity'],
                     'start': result['start'],
@@ -510,17 +408,34 @@ class CustomDocREDDataset(Dataset):
                     for pattern in term_patterns:
                         for match in pattern.finditer(sent):
                             entity = {
+                                's_id': i,
                                 'word': match.group(),
                                 'entity': label,
                                 'start': match.start(),
                                 'end': match.end()
                             }
                             entities.append(entity)
-            all_entities.append(entities)
+            all_entities.extend(entities)
         
         return all_entities
     
-    def tag_sents(self, sents, entities):
+    def get_entity_positions(self, sents, entities):
+        entity_indices = []
+
+        for entity in entities:
+            s_id = entity['s_id']
+            start = entity['start']
+            end = entity['end']
+            entity_indices.append({
+                's_id': s_id,
+                'pos': self.char_to_word_positions(sents[s_id], start, end),
+                'word': entity['word'],
+                'entity': entity['entity']
+            })
+        
+        return entity_indices
+    
+    #def tag_sents(self, sents, entities):
         '''
         Tags sentences with B-<entity type> at the start and E-<entity type> at the end of each identified entity.
 
@@ -548,53 +463,3 @@ class CustomDocREDDataset(Dataset):
         tagged_text = " [SEP] ".join(tagged_sents)
 
         return tagged_sents, tagged_text
-    
-
-class CustomLoss(nn.Module):
-    def __init__(self, threshold=0.8):
-        super(CustomLoss, self).__init__()
-        self.threshold = threshold
-        self.cross_entropy = nn.CrossEntropyLoss()
-
-    def similarity(self, a, b):
-        return SequenceMatcher(None, a, b).ratio()
-
-    def compute_instance_loss(self, entity_pairs, predictions, triplets):
-        instance_loss = 0
-        output = []
-
-        for i in range(len(predictions)):
-            prediction = predictions[i]
-            pred_head, pred_tail = entity_pairs[i]
-            
-            for triplet in triplets:
-                best_similarity = 0
-                best_relation = '0'
-
-                gold_heads, gold_relation, gold_tails = triplet
-                head_similarity = max(self.similarity(pred_head, gold_head) for gold_head in gold_heads)
-                tail_similarity = max(self.similarity(pred_tail, gold_tail) for gold_tail in gold_tails)
-
-                if head_similarity > self.threshold and tail_similarity > self.threshold:
-                    avg_similarity = (head_similarity + tail_similarity) / 2
-
-                    if avg_similarity > best_similarity:
-                        best_similarity = avg_similarity
-                        best_relation = gold_relation
-                
-            output.append((prediction, best_relation))
-
-        for pred, best_relation in output:
-            target = torch.tensor(int(best_relation), dtype=torch.long, device=predictions.device)
-            loss = self.cross_entropy(pred.unsqueeze(0), target.unsqueeze(0))
-            instance_loss += loss
-
-        return instance_loss / len(output)
-    
-    def forward(self, batch_entity_pairs, batch_predictions, batch_triplets):
-        batch_loss = 0
-        for entity_pairs, predicitons, triplets in zip(batch_entity_pairs, batch_predictions, batch_triplets):
-            instance_loss = self.compute_instance_loss(entity_pairs, predicitons, triplets)
-            batch_loss += instance_loss
-        
-        return batch_loss / len(batch_predictions)
