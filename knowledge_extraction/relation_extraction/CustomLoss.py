@@ -23,9 +23,10 @@ class CustomLoss(nn.Module):
         super(CustomLoss, self).__init__()
         self.threshold = threshold
         self.cross_entropy = nn.CrossEntropyLoss()
+        self.cosine_similarity = CosineSimilarity(dim=-1)
 
     def similarity(self, a, b):
-        return SequenceMatcher(None, a, b).ratio()
+        return self.cosine_similarity(a, b).item()
 
     def compute_instance_loss(self, entity_pairs, predictions, triplets):
         instance_loss = 0
@@ -39,7 +40,8 @@ class CustomLoss(nn.Module):
                 best_similarity = 0
                 best_relation = '0'
 
-                gold_heads, gold_relation, gold_tails = triplet
+                gold_head, gold_relation, gold_tail = triplet
+                head_similarity = self.similarity(pred_head, gold_head)
                 head_similarity = max(self.similarity(pred_head, gold_head) for gold_head in gold_heads)
                 tail_similarity = max(self.similarity(pred_tail, gold_tail) for gold_tail in gold_tails)
 

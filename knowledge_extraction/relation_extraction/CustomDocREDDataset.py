@@ -17,27 +17,41 @@ import re
 import time
 import os
 
+FIXED_PAIR_LENGTH = 3000
+
 def pad_sequence(sequences, batch_first=False, padding_value=0.0):
-    lengths = [len(seq) for seq in sequences]
-    max_len = max(lengths)
-    num_sequences = len(sequences)
+
+    sequences = [seq for seq in sequences if seq.size(0) > 0]
+    sequences = [torch.tensor(seq) if not isinstance(seq, torch.Tensor) else seq for seq in sequences]
+    max_len = max([s.size(0) for s in sequences])
+    trailing_dims = sequences[0].size()[1:]
 
     if batch_first:
-        padded_seqs = torch.full((num_sequences, max_len), padding_value)
+        out_dims = (len(sequences), max_len) + trailing_dims
     else:
-        padded_seqs = torch.full((max_len, num_sequences), padding_value)
+        out_dims = (max_len, len(sequences)) + trailing_dims
+    
+    padded_seqs = torch.full(out_dims, padding_value, dtype=sequences[0].dtype)
     
     for i, seq in enumerate(sequences):
+        length = seq.size(0)
         if batch_first:
-            padded_seqs[i, :len(seq)] = torch.tensor(seq)
+            padded_seqs[i, :length, ...] = seq
         else:
-            padded_seqs[:len(seq), i] = torch.tensor(seq)
+            padded_seqs[:length, i, ...] = seq
     return padded_seqs
 
+def pad_to_fixed_length(tensor, fixed_length, padding_value=0.0):
+    if tensor.size(0) > fixed_length:
+        return tensor[:fixed_length]
+    padding = (0, 0, 0, fixed_length - tensor.size(0))
+    return F.pad(tensor, padding, value=padding_value)
+
 def custom_collate_fn(batch):
-    text_embeddings = torch.stack([item['text_embeddings']] for item in batch)
-    pair_embeddings = [item['pair_embeddings'] for item in batch]
-    triplet_embeddings = [item['triplet_embeddings'] for item in batch]
+    text_embeddings = torch.stack([item['text_embeddings'].clone().detach() for item in batch])
+    pair_embeddings = [pad_to_fixed_length(item['pair_embeddings'].clone().detach(), FIXED_PAIR_LENGTH) for item in batch]
+    #pair_embeddings = [item['pair_embeddings'].clone().detach() for item in batch]
+    triplet_embeddings = [item['triplet_embeddings'].clone().detach() for item in batch]
 
     padded_pair_embeddings = pad_sequence(pair_embeddings, batch_first=True)
     padded_triplet_embeddings = pad_sequence(triplet_embeddings, batch_first=True)
@@ -97,14 +111,8 @@ class CustomDocREDDataset(Dataset):
         item = self.preprocessed_data[idx]
         text_embeddings = torch.tensor(item['text_embeddings'], dtype=torch.float32) 
         pair_embeddings = torch.tensor(item['pair_embeddings'], dtype=torch.float32)
-        print(f"triplet_embeddings (type: {type(item['triplet_embeddings'])}): {item['triplet_embeddings']}")
-        
-        triplet_embeddings = [ 
-            (torch.tensor(triplet[0], dtype=torch.float32), triplet[1], torch.tensor(triplet[2], dtype=torch.float32))
-            for triplet in item['triplet_embeddings']
-        ]
+        triplet_embeddings = torch.tensor(item['triplet_embeddings'], dtype=torch.float32)
     
-
         return {
             'text_embeddings': text_embeddings,
             'pair_embeddings': pair_embeddings,
@@ -192,12 +200,13 @@ class CustomDocREDDataset(Dataset):
             
             triplet_embeddings = []
             for triplet in indexed_triplets:
-                head_embs = [np.mean(text_embeddings[sentence_offsets[h['s_id']] + h['pos'][0]:sentence_offsets[h['s_id']] + h['pos'][1]], axis=0) for h in triplet['head']]
-                tail_embs = [np.mean(text_embeddings[sentence_offsets[t['s_id']] + t['pos'][0]:sentence_offsets[t['s_id']] + t['pos'][1]], axis=0) for t in triplet['tail']]
-                head_embedding = np.concatenate(head_embs, axis=0)
-                tail_embedding = np.concatenate(tail_embs, axis=0)
-                relation_id = triplet['relation']['id'] # keep relation id as is
-                triplet_embeddings.append((head_embedding, relation_id, tail_embedding))
+                h = triplet['head']
+                t = triplet['tail']
+                head_emb = np.mean(text_embeddings[sentence_offsets[h['s_id']] + h['pos'][0]:sentence_offsets[h['s_id']] + h['pos'][1]], axis=0)
+                tail_emb = np.mean(text_embeddings[sentence_offsets[t['s_id']] + t['pos'][0]:sentence_offsets[t['s_id']] + t['pos'][1]], axis=0)
+                relation_id = triplet['relation_id'] # keep relation id as is
+                triplet_embedding = np.concatenate((head_emb, np.array([relation_id]), tail_emb), axis=0)
+                triplet_embeddings.append(triplet_embedding)
         
         return text_embeddings, pair_embeddings, triplet_embeddings
     
@@ -271,7 +280,6 @@ class CustomDocREDDataset(Dataset):
             head_index = head[i]
             tail_index = tail[i]
             relation_id = relation_ids[i]
-            relation_text = relation_texts[i]
 
             head_entities = vertexSet[head_index]
             tail_entities = vertexSet[tail_index]
@@ -280,11 +288,14 @@ class CustomDocREDDataset(Dataset):
             head_indices = [{'s_id': entity['sent_id'], 'pos': entity['pos']} for entity in head_entities]
             tail_indices = [{'s_id': entity['sent_id'], 'pos': entity['pos']} for entity in tail_entities]
 
-            triplets.append({
-                'head': head_indices,
-                'relation': {'id': relation_num_id, 'text': relation_text},
-                'tail': tail_indices
-            })
+            for sub_head in head_indices:
+                for sub_tail in tail_indices:
+                    triplets.append({
+                        'head': sub_head,
+                        'relation_id': relation_num_id,
+                        'tail': sub_tail
+                    })
+
         return triplets
     
     ###########################################
