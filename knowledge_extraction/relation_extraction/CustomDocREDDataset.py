@@ -129,8 +129,12 @@ class CustomDocREDDataset(Dataset):
         '''
         print('Starting preprocessing...')
         start = time.time()
+        
         if length < 0:
             length = len(docred_data)
+        elif length == 0:
+            print('Preprocessing skipped.')
+            return None
 
         data = []
         for i in range(length):
@@ -223,6 +227,7 @@ class CustomDocREDDataset(Dataset):
 
     def standardize_text(self, text):
         replacements = {
+            '\xa0 ': '_',
             '\xa0': '_', # quick fix: adding space here introduces a lot of issues
             '–': '-',
             '“': '"',
@@ -234,14 +239,31 @@ class CustomDocREDDataset(Dataset):
         return text
 
     def get_info(self, instance):
+        SPACE_TOKEN = '[SPACE]'
         sents_raw = instance['sents']
+        space_token_flag = False
 
         standardized_sents = []
         for sent in sents_raw:
-            standardized_sent = [self.standardize_text(word) for word in sent]
+            standardized_sent = []
+            for word in sent:
+                if word == ' ':
+                    standardized_sent.append(SPACE_TOKEN)
+                    space_token_flag = True
+                else:
+                    standardized_sent.append(self.standardize_text(word))
             standardized_sents.append(standardized_sent)
 
-        sents = [' '.join(sublist) for sublist in standardized_sents]
+        sents = []
+        for sublist in standardized_sents:
+            sentence = []
+            for word in sublist:
+                if word == SPACE_TOKEN:
+                    sentence.append(' ')
+                else:
+                    sentence.append(word)
+            final_sentence = ''.join([word if word == ' ' else ' ' + word for word in sentence]).strip()
+            sents.append(final_sentence)
 
         vertexSet = instance['vertexSet']
         labels = instance['labels']
