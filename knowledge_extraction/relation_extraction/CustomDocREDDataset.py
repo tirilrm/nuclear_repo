@@ -60,39 +60,54 @@ class CustomDocREDDataset(Dataset):
         data = load_dataset('docred', trust_remote_code=True)
         self.raw_data = pd.DataFrame(data[dataset])
         self.preprocessed_data = self.preprocessor(self.raw_data, length=self.length)
-        #self.data_loader = DataLoader(self.preprocessed_data, batch_size=self.batch_size, shuffle=shuffle, collate_fn=custom_collate_fn)
+        self.data_loader = DataLoader(self.preprocessed_data, batch_size=self.batch_size, shuffle=shuffle, collate_fn=self.custom_collate_fn)
     
     def __len__(self):
         return len(self.preprocessed_data)
     
     def __getitem__(self, idx):
         item = self.preprocessed_data[idx]
-        embeddings = torch.tensor(item['embeddings'], dtype=torch.float32) 
-        labels = torch.tensor([triplet[1] for triplet in item['triplets']], dtype=torch.long)
-        entity_pairs = item['entity_pairs']
-        tagged_sents = item['sents']
+        text_embeddings = torch.tensor(item['text_embeddings'], dtype=torch.float32) 
+        pair_embeddings = torch.tensor(item['pair_embeddings'], dtype=torch.float32)
+        triplet_embeddings = torch.tensor(item['triplet_embeddings'], dtype=torch.float32)
 
         return {
-            'embeddings': embeddings,
-            'labels': labels,
-            'entity_pairs': entity_pairs,
-            'tagged_sents': tagged_sents
+            'text_embeddings': text_embeddings,
+            'pair_embeddings': pair_embeddings,
+            'triplet_embeddings': triplet_embeddings
+        }
+    
+    def pad_sequence(self, sequences, batch_first=False, padding_value=0.0):
+        lengths = [len(seq) for seq in sequences]
+        max_len = max(lengths)
+        num_sequences = len(sequences)
+
+        if batch_first:
+            padded_seqs = torch.full((num_sequences, max_len), padding_value)
+        else:
+            padded_seqs = torch.full((max_len, num_sequences), padding_value)
+        
+        for i, seq in enumerate(sequences):
+            if batch_first:
+                padded_seqs[i, :len(seq)] = torch.tensor(seq)
+            else:
+                padded_seqs[:len(seq), i] = torch.tensor(seq)
+        return padded_seqs
+    
+    def custom_collate_fn(self, batch):
+        text_embeddings = torch.stack([item['text_embeddings']] for item in batch)
+        pair_embeddings = [item['pair_embeddings'] for item in batch]
+        triplet_embeddings = [item['triplet_embeddings'] for item in batch]
+
+        padded_pair_embeddings = self.pad_sequence(pair_embeddings, batch_first=True)
+        padded_triplet_embeddings = self.pad_sequence(triplet_embeddings, batch_first=True)
+
+        return {
+            'text_embeddings': text_embeddings,
+            'pair_embeddings': padded_pair_embeddings,
+            'triplet_embeddings': padded_triplet_embeddings
         }
 
-    #def tokenize_input(self, context):
-        if isinstance(context, str):
-            context = [context]
-
-        inputs = self.tokenizer(
-            context,
-            padding='max_length',
-            truncation=True,
-            max_length=self.input_size,
-            return_tensors='pt'
-        )
-
-        return inputs
-    
     def preprocessor(self, docred_data, length):
         '''
         what we want for training: 
@@ -111,13 +126,14 @@ class CustomDocREDDataset(Dataset):
             if i % 50 == 0:
                 print(f"{(i/length)*100:.2f}% finished")
             
-
             # Create entity pairs and triplets
             sents, vertexSet, labels = self.get_info(docred_data.iloc[i])
             entities = self.extract_entities(sents)
-            indexed_entities = self.get_entity_positions(sents, entities)
+            indexed_entities = self.get_entity_positions(sents, entities, i)
             indexed_pairs = self.make_pairs(indexed_entities)
             indexed_triplets = self.make_triplets(vertexSet, labels)
+
+            pass
 
             # Get the embeded data
             text_emb, pair_emb, triplet_emb = self.embed_data(sents, indexed_pairs, indexed_triplets)
@@ -133,6 +149,10 @@ class CustomDocREDDataset(Dataset):
         
         return data
     
+    #######################################
+    #### Preprocessor Helper functions ####
+    #######################################
+
     def embed_data(self, sents, indexed_pairs, indexed_triplets):
         full_text = ' '.join(sents)
         inputs = self.tokenizer(
@@ -158,17 +178,9 @@ class CustomDocREDDataset(Dataset):
                 e1_end = sentence_offsets[e1['s_id']] + e1['pos'][1]
                 e2_start = sentence_offsets[e2['s_id']] + e2['pos'][0]
                 e2_end = sentence_offsets[e2['s_id']] + e2['pos'][1]
-
-                if e1_start >= e1_end or e2_start >= e2_end:
-                    print(f"Skipping pair with invalid indices: ({e1_start}, {e1_end}), ({e2_start}, {e2_end})")
-                    continue
                 
                 e1_slice = text_embeddings[e1_start:e1_end]
                 e2_slice = text_embeddings[e2_start:e2_end]
-
-                if e1_slice.size == 0 or e2_slice.size == 0:
-                    print(f"Empty slice detected: e1_slice size = {e1_slice.size}, e2_slice size = {e2_slice.size}")
-                    continue
 
                 e1_emb = np.mean(e1_slice, axis=0)
                 e2_emb = np.mean(e2_slice, axis=0)
@@ -199,27 +211,33 @@ class CustomDocREDDataset(Dataset):
         
         return entity_type_emb
 
+    def standardize_text(self, text):
+        replacements = {
+            '\xa0': '_', # quick fix: adding space here introduces a lot of issues
+            '–': '-',
+            '“': '"',
+            '”': '"'
+        }
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+                
+        return text
 
     def get_info(self, instance):
         sents_raw = instance['sents']
-        sents = [' '.join(sublist) for sublist in sents_raw]
+
+        standardized_sents = []
+        for sent in sents_raw:
+            standardized_sent = [self.standardize_text(word) for word in sent]
+            standardized_sents.append(standardized_sent)
+
+        sents = [' '.join(sublist) for sublist in standardized_sents]
+
         vertexSet = instance['vertexSet']
         labels = instance['labels']
 
         return sents, vertexSet, labels
 
-    #def load_data(self, get_distant=False):
-        pass
-        docred_data = load_dataset('docred', trust_remote_code=True)
-        train_annotated = pd.DataFrame(docred_data['train_annotated'])
-        train_distant = None
-        if get_distant:
-            train_distant = pd.DataFrame(docred_data['train_distant'])
-        test = pd.DataFrame(docred_data['test'])
-        validation = pd.DataFrame(docred_data['validation'])
-
-        return train_annotated, train_distant, test, validation
-   
     ###########################################
     #### Triplet Creation Helper Functions ####
     ###########################################
@@ -297,40 +315,6 @@ class CustomDocREDDataset(Dataset):
             ) for pair in pairs
         ]
         return pairs_list
-
-    def char_to_word_positions(self, sent, start, end):
-        words = sent.split()
-        current_char_index = 0
-        start_word_index = -1
-        end_word_index = -1
-
-        for i, word in enumerate(words):
-            word_length = len(word)
-            
-            # Adjust for leading spaces
-            while current_char_index < len(sent) and sent[current_char_index] == ' ':
-                current_char_index += 1
-
-            if start_word_index == -1 and current_char_index <= start < current_char_index + word_length:
-                start_word_index = i
-            
-            if current_char_index < end <= current_char_index + word_length:
-                end_word_index = i + 1
-            
-            current_char_index += word_length + 1
-            
-            if start_word_index != -1 and end_word_index != -1:
-                break
-
-        if end_word_index == -1:
-            end_word_index = len(words)
-        
-        if start_word_index == -1 or end_word_index == -1:
-            print(f"Sentence: {sent}")
-            print(f"Start index: {start}, End index: {end}")
-            print(f"Computed start_word_index: {start_word_index}, end_word_index: {end_word_index}")
-
-        return [start_word_index, end_word_index]
 
     def merge_result(self, entities):
         '''
@@ -457,14 +441,16 @@ class CustomDocREDDataset(Dataset):
             joined_result = self.combine_entities(merged_result)
 
             for result in joined_result:
-                entity = {
-                    's_id': i,
-                    'word': result['word'],
-                    'entity': result['entity'],
-                    'start': result['start'],
-                    'end': result['end']
-                }
-                entities.append(entity)
+                word = result['word']
+                if '##' not in word and 'of' not in word:
+                    entity = {
+                        's_id': i,
+                        'word': result['word'],
+                        'entity': result['entity'],
+                        'start': result['start'],
+                        'end': result['end']
+                    }
+                    entities.append(entity)
         
             # Keyword entities
             if self.custom_keywords:
@@ -485,21 +471,55 @@ class CustomDocREDDataset(Dataset):
         
         return all_entities
     
-    def get_entity_positions(self, sents, entities):
+    def get_entity_positions(self, sents, entities, i):
         entity_indices = []
 
         for entity in entities:
             s_id = entity['s_id']
             start = entity['start']
             end = entity['end']
+            pos = self.char_to_word_positions(sents[s_id], start, end, i)
+
             entity_indices.append({
                 's_id': s_id,
-                'pos': self.char_to_word_positions(sents[s_id], start, end),
+                'pos': pos,
                 'word': entity['word'],
                 'entity': entity['entity']
             })
         
         return entity_indices
+
+    def char_to_word_positions(self, sent, start, end, index):
+        words = sent.split()
+        current_char_index = 0
+        start_word_index = -1
+        end_word_index = -1
+
+        for i, word in enumerate(words):
+
+            word_length = len(word)
+            
+            # Adjust for leading spaces
+            while current_char_index < len(sent) and sent[current_char_index] == ' ':
+                current_char_index += 1
+
+            if start_word_index == -1 and current_char_index <= start < current_char_index + word_length:
+                start_word_index = i
+            
+            if current_char_index < end <= current_char_index + word_length:
+                end_word_index = i + 1
+            
+            current_char_index += word_length + 1
+            
+            if start_word_index != -1 and end_word_index != -1:
+                break
+
+        #print(f'{i}: {sent[start:end]}: [{start_word_index},{end_word_index}]')
+
+        if end_word_index == -1:
+            end_word_index = len(words)
+        
+        return [start_word_index, end_word_index]
     
     #def tag_sents(self, sents, entities):
         '''
