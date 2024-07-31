@@ -17,11 +17,40 @@ import re
 import time
 import os
 
+def pad_sequence(sequences, batch_first=False, padding_value=0.0):
+    lengths = [len(seq) for seq in sequences]
+    max_len = max(lengths)
+    num_sequences = len(sequences)
+
+    if batch_first:
+        padded_seqs = torch.full((num_sequences, max_len), padding_value)
+    else:
+        padded_seqs = torch.full((max_len, num_sequences), padding_value)
+    
+    for i, seq in enumerate(sequences):
+        if batch_first:
+            padded_seqs[i, :len(seq)] = torch.tensor(seq)
+        else:
+            padded_seqs[:len(seq), i] = torch.tensor(seq)
+    return padded_seqs
+
+def custom_collate_fn(batch):
+    text_embeddings = torch.stack([item['text_embeddings']] for item in batch)
+    pair_embeddings = [item['pair_embeddings'] for item in batch]
+    triplet_embeddings = [item['triplet_embeddings'] for item in batch]
+
+    padded_pair_embeddings = pad_sequence(pair_embeddings, batch_first=True)
+    padded_triplet_embeddings = pad_sequence(triplet_embeddings, batch_first=True)
+
+    return {
+        'text_embeddings': text_embeddings,
+        'pair_embeddings': padded_pair_embeddings,
+        'triplet_embeddings': padded_triplet_embeddings
+    }
 
 class CustomDocREDDataset(Dataset):
-    def __init__(self, dataset, input_size, batch_size, model_name, custom_keywords, device, shuffle=True, threshold=0.8, length=-1):
+    def __init__(self, dataset, input_size, model_name, custom_keywords, device, threshold=0.8, length=-1):
         self.input_size = input_size
-        self.batch_size = batch_size
         self.model_name = model_name
         self.custom_keywords = custom_keywords
         self.device = device
@@ -60,7 +89,6 @@ class CustomDocREDDataset(Dataset):
         data = load_dataset('docred', trust_remote_code=True)
         self.raw_data = pd.DataFrame(data[dataset])
         self.preprocessed_data = self.preprocessor(self.raw_data, length=self.length)
-        self.data_loader = DataLoader(self.preprocessed_data, batch_size=self.batch_size, shuffle=shuffle, collate_fn=self.custom_collate_fn)
     
     def __len__(self):
         return len(self.preprocessed_data)
@@ -69,43 +97,18 @@ class CustomDocREDDataset(Dataset):
         item = self.preprocessed_data[idx]
         text_embeddings = torch.tensor(item['text_embeddings'], dtype=torch.float32) 
         pair_embeddings = torch.tensor(item['pair_embeddings'], dtype=torch.float32)
-        triplet_embeddings = torch.tensor(item['triplet_embeddings'], dtype=torch.float32)
+        print(f"triplet_embeddings (type: {type(item['triplet_embeddings'])}): {item['triplet_embeddings']}")
+        
+        triplet_embeddings = [ 
+            (torch.tensor(triplet[0], dtype=torch.float32), triplet[1], torch.tensor(triplet[2], dtype=torch.float32))
+            for triplet in item['triplet_embeddings']
+        ]
+    
 
         return {
             'text_embeddings': text_embeddings,
             'pair_embeddings': pair_embeddings,
             'triplet_embeddings': triplet_embeddings
-        }
-    
-    def pad_sequence(self, sequences, batch_first=False, padding_value=0.0):
-        lengths = [len(seq) for seq in sequences]
-        max_len = max(lengths)
-        num_sequences = len(sequences)
-
-        if batch_first:
-            padded_seqs = torch.full((num_sequences, max_len), padding_value)
-        else:
-            padded_seqs = torch.full((max_len, num_sequences), padding_value)
-        
-        for i, seq in enumerate(sequences):
-            if batch_first:
-                padded_seqs[i, :len(seq)] = torch.tensor(seq)
-            else:
-                padded_seqs[:len(seq), i] = torch.tensor(seq)
-        return padded_seqs
-    
-    def custom_collate_fn(self, batch):
-        text_embeddings = torch.stack([item['text_embeddings']] for item in batch)
-        pair_embeddings = [item['pair_embeddings'] for item in batch]
-        triplet_embeddings = [item['triplet_embeddings'] for item in batch]
-
-        padded_pair_embeddings = self.pad_sequence(pair_embeddings, batch_first=True)
-        padded_triplet_embeddings = self.pad_sequence(triplet_embeddings, batch_first=True)
-
-        return {
-            'text_embeddings': text_embeddings,
-            'pair_embeddings': padded_pair_embeddings,
-            'triplet_embeddings': padded_triplet_embeddings
         }
 
     def preprocessor(self, docred_data, length):
@@ -132,8 +135,6 @@ class CustomDocREDDataset(Dataset):
             indexed_entities = self.get_entity_positions(sents, entities, i)
             indexed_pairs = self.make_pairs(indexed_entities)
             indexed_triplets = self.make_triplets(vertexSet, labels)
-
-            pass
 
             # Get the embeded data
             text_emb, pair_emb, triplet_emb = self.embed_data(sents, indexed_pairs, indexed_triplets)
