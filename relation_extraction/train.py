@@ -141,9 +141,9 @@ for epoch in range(num_epochs):
     total_loss = 0
 
     for batch in train_loader:
-        text_embeddings = batch['text_embeddings']
-        pair_embeddings = batch['pair_embeddings']
-        triplet_embeddings = batch['triplet_embeddings']
+        text_embeddings = batch['text_embeddings'].to(device)
+        pair_embeddings = batch['pair_embeddings'].to(device)
+        triplet_embeddings = batch['triplet_embeddings'].to(device)
 
         # Forward pass
         preds = model(text_embeddings, pair_embeddings) # shape [batch_size, num_pairs]
@@ -167,7 +167,7 @@ for epoch in range(num_epochs):
         for batch in val_loader:
             text_embeddings = batch['text_embeddings'].to(device)
             pair_embeddings = batch['pair_embeddings'].to(device)
-            triplet_embeddings = batch['triplet_embeddings']
+            triplet_embeddings = batch['triplet_embeddings'].to(device)
 
             preds = model(text_embeddings, pair_embeddings)
 
