@@ -1,0 +1,21 @@
+ARC Clean Energy
+BWX Technologies
+GE Hitachi Nuclear Energy
+General Atomics
+Global First Power
+Holtec International
+Kairos Power
+Moltex Energy
+Nano Nuclear Energy
+NuScale Power
+Oklo Inc.
+TerraPower
+Terrestial Energy
+ThorCon Power
+Ultra Safe Nuclear Corporation (USNC)
+Westinghouse Electric Company
+X-energy
+
+Not American or Canadian:
+Rolls-Royce Small Modular Reactors (British?)
+Seaborg Technologies

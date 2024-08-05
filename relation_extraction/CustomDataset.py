@@ -1,21 +1,15 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 
 from datasets import load_dataset
 from transformers import pipeline, AutoTokenizer, DistilBertModel
-
-from difflib import SequenceMatcher
-import pickle
-import json
 import pandas as pd
 import numpy as np
 import Levenshtein
 import re
 import time
-import os
 
 FIXED_PAIR_LENGTH = 3000
 

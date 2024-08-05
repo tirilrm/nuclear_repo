@@ -1,6 +1,6 @@
 import torch
 import pickle
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 import torch.optim as optim
 import time
 
@@ -15,13 +15,6 @@ importlib.reload(CustomLoss)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_name = 'dslim/distilbert-NER'
 
-try:
-    with open('keyword_matching/directory.pkl', 'rb') as file:
-        keywords = pickle.load(file)
-except FileNotFoundError or FileExistsError:
-    with open('directory.pkl', 'rb') as file:
-        keywords = pickle.load(file)
-
 input_size = 512
 output_size = 768
 num_layers = 4          # may require tuning
@@ -34,6 +27,55 @@ num_epochs = 5
 
 PAIR_EMBEDDING_WIDTH = 1540
 PAIR_EMBEDDING_LENGTH = 3000
+
+keywords = {
+    'FUEL': 
+    [
+            'u235', 'u238', 'uranium-235', 'uranium-238'
+            'uranium compound', 'uranium oxide', 'uranium dioxide' 'uranium fuel',
+            'nuclear fuel', 'mox', 'mox fuel', 'mixed oxide fuel',
+            'plutonium', 'pu239', 'plutonium-239', 'thorium', 'actinides',
+            'light water', 'heavy water'
+    ],
+    'FUEL_CYCLE': 
+    [
+        'uranium oxide', 'uranium hexafluoride', 'hex' ,'wet process', 'dry process',
+        'uranium enrichment', 'gas centrifuge',
+        'fuel rods', 'fuel assembly', 'low enriched fuel', 'leu', 'highly enriched fuel', 'heu',
+        'high assay low enriched uranium', 'haleu', 'triso',
+        'spent fuel', 'spent nuclear fuel', 'nuclear waste', 'radioactive waste',
+        'spent oxide fuel', 'spent reactor fuel', 'spent fuel pools', 'spent fuel ponds',
+    ],
+    'SMR_DESIGN': 
+    [
+        'water-cooled', 'water cooled',
+        'light water reactor', 'lwr',
+        'heavy water reactor', 'hwr',
+        'boiling water reactor', 'pressurized water reactor', 'pwr',
+        'high temperature gas reactor', 'htgr', 
+        'gas reactor', 'gas-cooled', 'gas cooled', 'pebble bed reactor', 'pbmr'
+        'liquid metal cooled', 'liquid-metal-cooled', 'liquid metal-cooled',
+        'lead-bismuth', 'sodium cooled', 'sodium-cooled'
+        'molten salt reactor', 'molten salt', 'msr'
+        'microreactor', 'micro reactor'
+        'micro modular reactor', 'micro nuclear reactor'
+    ],
+    'REACTOR': 
+    [
+        'nuclear reactor', 'nuclear power plant', 'nuclear power reactor',
+        'fast reactor',
+    ],
+    'SMR': 
+    [
+        'smr', 'small modular reactor', 
+        'small nuclear reactor',
+    ],
+    'POLITICAL': 
+    [
+        'safety', 'security', 'nuclear regulation', 
+        'proliferation', 'safeguards',
+    ]
+}
 
 # 1. Load datasets
 length = 10
@@ -115,7 +157,7 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         total_loss += loss.item()
-    
+
     avg_loss = total_loss / len(train_loader)
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
 
@@ -131,11 +173,12 @@ for epoch in range(num_epochs):
 
             val_loss = loss_fn(pair_embeddings, preds, triplet_embeddings)
             total_val_loss += val_loss.item()
-        
+
         avg_val_loss = total_val_loss / len(val_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
 
     # Save model and checkpoint at the end of each eopoch
+    print('Saving interim model and checkpoint')
     model_save_path = f"models/model_epoch_{epoch+1}.pth"
     torch.save(model.state_dict(), model_save_path)
 
