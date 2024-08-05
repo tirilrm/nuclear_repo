@@ -68,7 +68,7 @@ class CustomDocREDDataset(Dataset):
         # Load the models for tokenization and NER
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.distilbert = DistilBertModel.from_pretrained(self.model_name)
-        self.ner_pipeline = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer)
+        self.ner_pipeline = pipeline('ner', model=self.model_name, tokenizer=self.tokenizer, device=device)
 
         # Define an embedding layer for entity types
         self.entity_type_to_id = {

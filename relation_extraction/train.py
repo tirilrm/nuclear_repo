@@ -1,5 +1,4 @@
 import torch
-import pickle
 from torch.utils.data import DataLoader
 import torch.optim as optim
 import time
@@ -78,7 +77,9 @@ keywords = {
 }
 
 # 1. Load datasets
-length = 10
+print('Loading datasets...')
+
+length = 50
 train = CustomDataset.CustomDocREDDataset(
     dataset='train_annotated',
     input_size=input_size,
@@ -105,11 +106,15 @@ val = CustomDataset.CustomDocREDDataset(
 )
 
 # 2. Make data loaders for efficient batching
+print('Making data loaders...')
+
 train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, collate_fn=CustomDataset.custom_collate_fn)
 test_loader = DataLoader(test, batch_size=batch_size, shuffle=False, collate_fn=CustomDataset.custom_collate_fn)
 val_loader = DataLoader(val, batch_size=batch_size, shuffle=False, collate_fn=CustomDataset.custom_collate_fn)
 
 # 3. Load the model
+print('Loading model...')
+
 model = RE_BiLSTM.RelationExtractorBRNN(
     input_size=output_size,
     hidden_size=hidden_size,
@@ -122,10 +127,14 @@ model = RE_BiLSTM.RelationExtractorBRNN(
 ).to(device)
 
 # 4. Load optimizer and custom loss function
+print('Loading loss function...')
+
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 loss_fn = CustomLoss.CustomLoss(threshold=threshold)
 
 # 5. Start training
+print('Starting training...')
+
 start = time.time()
 avg_loss = 0.0
 avg_val_loss = 0.0
