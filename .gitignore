@@ -2,8 +2,9 @@
 env/
 ignore/
 scraping/articles/old/
-knowledge_extraction/relation_extraction/docred_metadata/
-knowledge_extraction/relation_extraction/data/
+relation_extraction/old
+relation_extraction/checkpoints
+relation_extraction/models
 
 # Ignore Jupyter notebook checkpoints
 .ipynb_checkpoints
