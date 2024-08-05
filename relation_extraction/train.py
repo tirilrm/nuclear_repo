@@ -28,13 +28,15 @@ num_layers = 4          # may require tuning
 hidden_size = 256       # may require tuning
 num_classes = 97        # 96 different relations plus '0' for no relation
 learning_rate = 0.001   # may require tuning
+threshold = 0.85
 batch_size = 32
 num_epochs = 5
+
 PAIR_EMBEDDING_WIDTH = 1540
 PAIR_EMBEDDING_LENGTH = 3000
 
-# Prepare datasets
-length = 100
+# 1. Load datasets
+length = 10
 train = CustomDataset.CustomDocREDDataset(
     dataset='train_annotated',
     input_size=input_size,
@@ -60,11 +62,12 @@ val = CustomDataset.CustomDocREDDataset(
     length = length
 )
 
+# 2. Make data loaders for efficient batching
 train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, collate_fn=CustomDataset.custom_collate_fn)
 test_loader = DataLoader(test, batch_size=batch_size, shuffle=False, collate_fn=CustomDataset.custom_collate_fn)
 val_loader = DataLoader(val, batch_size=batch_size, shuffle=False, collate_fn=CustomDataset.custom_collate_fn)
 
-# Load model
+# 3. Load the model
 model = RE_BiLSTM.RelationExtractorBRNN(
     input_size=output_size,
     hidden_size=hidden_size,
@@ -75,14 +78,20 @@ model = RE_BiLSTM.RelationExtractorBRNN(
     model_name=model_name,
     device=device
 ).to(device)
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-loss_fn = CustomLoss.CustomLoss(threshold=0.8)
 
+# 4. Load optimizer and custom loss function
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+loss_fn = CustomLoss.CustomLoss(threshold=threshold)
+
+# 5. Start training
 start = time.time()
+avg_loss = 0.0
+avg_val_loss = 0.0
+
 for epoch in range(num_epochs):
     current = time.time()
-    time_passed = current - start
-    if time_passed >= 3*24*60*60:
+    time_passed = current-start
+    if time_passed - start >= 3*24*60*60:
         print('Exceeded maximum amount of time. Saving models...')
         break
 
@@ -90,9 +99,9 @@ for epoch in range(num_epochs):
     total_loss = 0
 
     for batch in train_loader:
-        text_embeddings = batch['text_embeddings'].to(device)
-        pair_embeddings = batch['pair_embeddings'].to(device)
-        triplet_embeddings = batch['triplet_embeddings'].to(device)
+        text_embeddings = batch['text_embeddings']
+        pair_embeddings = batch['pair_embeddings']
+        triplet_embeddings = batch['triplet_embeddings']
 
         # Forward pass
         preds = model(text_embeddings, pair_embeddings) # shape [batch_size, num_pairs]
@@ -116,7 +125,7 @@ for epoch in range(num_epochs):
         for batch in val_loader:
             text_embeddings = batch['text_embeddings'].to(device)
             pair_embeddings = batch['pair_embeddings'].to(device)
-            triplet_embeddings = batch['triplet_embeddings'].to(device)
+            triplet_embeddings = batch['triplet_embeddings']
 
             preds = model(text_embeddings, pair_embeddings)
 
@@ -125,16 +134,31 @@ for epoch in range(num_epochs):
         
         avg_val_loss = total_val_loss / len(val_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}")
-    
-model_save_path = "model.pth"
+
+    # Save model and checkpoint at the end of each eopoch
+    model_save_path = f"models/model_epoch_{epoch+1}.pth"
+    torch.save(model.state_dict(), model_save_path)
+
+    checkpoint_path = f"checkpoints/checkpoint_epoch_{epoch+1}.pth"
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'epoch': epoch,
+        'loss': avg_loss,
+        'val_loss': avg_val_loss
+    }, checkpoint_path)
+
+# 6. Save final model and checkpoint
+model_save_path = "models/model_epoch_final.pth"
 torch.save(model.state_dict(), model_save_path)
 print(f"Model saved to {model_save_path}")
 
-checkpoint_path = "checkpoint.pth"
+checkpoint_path = "checkpoints/checkpoint_final.pth"
 torch.save({
     'model_state_dict': model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
     'epoch': epoch,
-    'loss': loss,
+    'loss': avg_loss, # Using last calculated
+    'val_loss': avg_val_loss # Using last calculated
 }, checkpoint_path)
 print(f"Checkpoint saved to {checkpoint_path}")

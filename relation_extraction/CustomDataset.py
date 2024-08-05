@@ -112,14 +112,16 @@ class CustomDocREDDataset(Dataset):
     def __getitem__(self, idx):
         item = self.preprocessed_data[idx]
 
-        text_embeddings = torch.tensor(np.array(item['text_embeddings'], dtype=torch.float32))
-        pair_embeddings = torch.tensor(np.array(item['pair_embeddings'], dtype=torch.float32))
-        triplet_embeddings = torch.tensor(np.array(item['triplet_embeddings'], dtype=torch.float32))
+        text_embeddings = torch.tensor(np.array(item['text_embeddings'], dtype=np.float32))
+        pair_embeddings = torch.tensor(np.array(item['pair_embeddings'], dtype=np.float32))
+        triplet_embeddings = torch.tensor(np.array(item['triplet_embeddings'], dtype=np.float32))
+        original_pairs = item['original_pairs']
     
         return {
             'text_embeddings': text_embeddings,
             'pair_embeddings': pair_embeddings,
-            'triplet_embeddings': triplet_embeddings
+            'triplet_embeddings': triplet_embeddings,
+            'original_pairs': original_pairs
         }
 
     def preprocessor(self, docred_data, length):
@@ -157,7 +159,8 @@ class CustomDocREDDataset(Dataset):
             data.append({
                 'text_embeddings': text_emb,
                 'pair_embeddings': pair_emb,
-                'triplet_embeddings': triplet_emb
+                'triplet_embeddings': triplet_emb,
+                'original_pairs': indexed_pairs
             })
 
         end = time.time()
@@ -328,14 +331,14 @@ class CustomDocREDDataset(Dataset):
                     e2 = indexed_entities[j]
                     if not self.are_similar(e1, e2):
                         pair = (
-                            (e1['s_id'], tuple(e1['pos']), e1['entity']),
-                            (e2['s_id'], tuple(e2['pos']), e2['entity'])
+                            (e1['s_id'], tuple(e1['pos']), e1['entity'], e1['word']),
+                            (e2['s_id'], tuple(e2['pos']), e2['entity'], e2['word'])
                         )
                         pairs.add(pair)
         pairs_list = [
             (
-                {'s_id': pair[0][0], 'pos': list(pair[0][1]), 'entity': pair[0][2]},
-                {'s_id': pair[1][0], 'pos': list(pair[1][1]), 'entity': pair[1][2]}
+                {'s_id': pair[0][0], 'pos': list(pair[0][1]), 'entity': pair[0][2], 'word': pair[0][3]},
+                {'s_id': pair[1][0], 'pos': list(pair[1][1]), 'entity': pair[1][2], 'word': pair[1][3]} 
             ) for pair in pairs
         ]
         return pairs_list
