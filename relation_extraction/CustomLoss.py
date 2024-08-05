@@ -23,43 +23,57 @@ class CustomLoss(nn.Module):
         super(CustomLoss, self).__init__()
         self.threshold = threshold
         self.cross_entropy = nn.CrossEntropyLoss()
-        self.cosine_similarity = CosineSimilarity(dim=-1)
+        self.cosine_similarity = nn.CosineSimilarity(dim=-1)
 
     def similarity(self, a, b):
         return self.cosine_similarity(a, b).item()
 
-    def compute_instance_loss(self, entity_pairs, predictions, triplets):
+    def compute_instance_loss(self, pair_embeddings, predictions, triplet_embeddings):
+        '''
+        For pred in predictions:
+        Find the 'best matching pair' among triplets
+        If match > threshold check if predicted relation == gold relation
+        Else: check if predicted relation == '0'
+        '''
         instance_loss = 0
-        output = []
+
+        EMBEDDING_DIM = 768
 
         for i in range(len(predictions)):
-            prediction = predictions[i]
-            pred_head, pred_tail = entity_pairs[i]
+            prediction = predictions[i] # Tensor of shape [1, num_classes]
+            pair_embedding = pair_embeddings[i]
+            pred_head = pair_embedding[:EMBEDDING_DIM] # e1_emb
+            pred_tail = pair_embedding[EMBEDDING_DIM:2*EMBEDDING_DIM] # e2_emb
             
-            for triplet in triplets:
-                best_similarity = 0
-                best_relation = '0'
+            best_similarity = 0
+            best_triplet = None
+            
+            for triplet in triplet_embeddings:
+                gold_head = triplet[:EMBEDDING_DIM]
+                gold_tail = triplet[EMBEDDING_DIM+1:2*EMBEDDING_DIM+1]
 
-                gold_head, gold_relation, gold_tail = triplet
                 head_similarity = self.similarity(pred_head, gold_head)
-                head_similarity = max(self.similarity(pred_head, gold_head) for gold_head in gold_heads)
-                tail_similarity = max(self.similarity(pred_tail, gold_tail) for gold_tail in gold_tails)
+                tail_similarity = self.similarity(pred_tail, gold_tail)
 
                 if head_similarity > self.threshold and tail_similarity > self.threshold:
                     avg_similarity = (head_similarity + tail_similarity) / 2
 
                     if avg_similarity > best_similarity:
                         best_similarity = avg_similarity
-                        best_relation = gold_relation
-                
-            output.append((prediction, best_relation))
-
-        for pred, best_relation in output:
-            target = torch.tensor(int(best_relation), dtype=torch.long, device=predictions.device)
-            loss = self.cross_entropy(pred.unsqueeze(0), target.unsqueeze(0))
+                        best_triplet = triplet
+            
+            if best_triplet is not None:
+                gold_relation = best_triplet[EMBEDDING_DIM:EMBEDDING_DIM+1]
+                target = torch.tensor(int(gold_relation), dtype=torch.long, device=predictions.device)
+            else:
+                target = torch.tensor(0, dtype=torch.long, device=predictions.device) # Default relation is '0'
+            
+            prediction = prediction.unsqueeze(0)
+            loss = self.cross_entropy(prediction, target.unsqueeze(0))
             instance_loss += loss
-
-        return instance_loss / len(output)
+            
+        avg_instance_loss = instance_loss / len(predictions)
+        return avg_instance_loss
     
     def forward(self, batch_entity_pairs, batch_predictions, batch_triplets):
         batch_loss = 0
@@ -67,4 +81,5 @@ class CustomLoss(nn.Module):
             instance_loss = self.compute_instance_loss(entity_pairs, predicitons, triplets)
             batch_loss += instance_loss
         
-        return batch_loss / len(batch_predictions)
+        avg_loss = batch_loss / len(batch_predictions)
+        return avg_loss

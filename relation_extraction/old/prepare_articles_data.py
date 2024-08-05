@@ -8,7 +8,7 @@ import pickle
 import re
 import pandas as pd
 
-from _RE import merge_result, combine_entities, join_text
+from relation_extraction.old._RE import merge_result, combine_entities, join_text
 
 model_name = 'dslim/distilbert-NER'
 tokenizer = AutoTokenizer.from_pretrained(model_name)

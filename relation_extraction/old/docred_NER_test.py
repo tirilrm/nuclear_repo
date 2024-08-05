@@ -7,9 +7,9 @@ import json
 import numpy as np
 
 import importlib
-import _RE
+import relation_extraction.old._RE as _RE
 importlib.reload(_RE)
-from _RE import join_text, merge_result, combine_entities
+from relation_extraction.old._RE import join_text, merge_result, combine_entities
 
 def get_info(docred_instance):
     title = docred_instance['title']

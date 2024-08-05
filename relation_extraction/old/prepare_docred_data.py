@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from datasets import load_dataset
 import pandas as pd
-from _RE import join_text
+from relation_extraction.old._RE import join_text
 import json
 import importlib
 import time
