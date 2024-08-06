@@ -244,10 +244,12 @@ if __name__ == "__main__":
     length = len(articles)
 
     start = time.time()
-    for i in range(56,57):
+
+    for i in range(1):
 
         if i % 10 == 0:
-            print(f"{(i/length)*100:.2f}% finished")
+            print(f"{(i/length)*100:.2f}% finished.")
+
         instance = articles.iloc[i]
         url = instance['url']
         sents = instance['text']
@@ -267,5 +269,12 @@ if __name__ == "__main__":
         json.dump(extractor.untreated_articles, f, ensure_ascii=False, indent=4)
 
     end = time.time()
-    print(f"Length output: {len(output)}, Length of exempted: {len(extractor.untreated_articles)}.")
+
+    output_length = len(output)
+    untreated_length = len(extractor.untreated_articles)
+    total = output_length + untreated_length
+
+    print(f"Length output: {output_length} ({(output_length/total)*100:.2f} %).")
+    print(f"Length of exempted: {untreated_length} ({(untreated_length/total)*100:.2f} %)")
+    print(f"Total: {total} ({(total/length)*100:.2f} %).")
     print(f"Extraction took {(end-start)/60:.2f} minutes.")
