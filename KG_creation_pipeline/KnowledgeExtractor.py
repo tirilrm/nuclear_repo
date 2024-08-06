@@ -1,5 +1,8 @@
 from transformers import pipeline, AutoTokenizer
 import re
+from relik import Relik
+from relik.inference.data.objects import RelikOutput
+from dataclasses import asdict
 
 class KnowledgeExtractor():
     def __init__(self, model_name, custom_keywords):
@@ -7,9 +10,37 @@ class KnowledgeExtractor():
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.ner_pipeline = pipeline('ner', model=model_name, tokenizer=self.tokenizer)
         self.custom_keywords = custom_keywords
+        self.relik = Relik.from_pretrained("sapienzanlp/relik-relation-extraction-nyt-large")
+    
+    ############################
+    #### Relation Extractor ####
+    ############################
+    def extract_relik_triplets(self, sents):
+        extracted_triplets = []
+
+        relik_out: RelikOutput = self.relik(sents)
+
+        for output in relik_out:
+            output_dict = asdict(output)
+            triplets = output_dict['triplets']
+            if triplets:
+                for triplet in triplets:
+                    head = triplet.subject.text
+                    tail = triplet.object.text
+                    label = triplet.label
+                    confidence = triplet.confidence
+                    extracted_triplets.append({
+                        'head': head,
+                        'relation': label,
+                        'tail': tail,
+                        'confidence': confidence
+                    }) 
+        
+        return extracted_triplets
+
 
     ##########################
-    #### Entity extractor ####
+    #### Entity Extractor #### (Re-used same code as in CustomDataset class for RE training)
     ##########################
 
     def merge_result(self, entities):
@@ -140,11 +171,11 @@ class KnowledgeExtractor():
                 word = result['word']
                 if '##' not in word and 'of' not in word:
                     entity = {
-                        's_id': i,
+                        #'s_id': i,
                         'word': result['word'],
                         'entity': result['entity'],
-                        'start': result['start'],
-                        'end': result['end']
+                        #'start': result['start'],
+                        #'end': result['end']
                     }
                     entities.append(entity)
         
@@ -156,11 +187,11 @@ class KnowledgeExtractor():
                     for pattern in term_patterns:
                         for match in pattern.finditer(sent):
                             entity = {
-                                's_id': i,
+                                #'s_id': i,
                                 'word': match.group(),
                                 'entity': label,
-                                'start': match.start(),
-                                'end': match.end()
+                                #'start': match.start(),
+                                #'end': match.end()
                             }
                             entities.append(entity)
             all_entities.extend(entities)
