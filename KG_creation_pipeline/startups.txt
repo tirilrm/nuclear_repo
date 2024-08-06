@@ -1,17 +1,27 @@
 ARC Clean Energy
+Babcock and Wilcox (mPower)
 BWX Technologies
+Elysium Industries
+Flibe Energy
+Framatome
 GE Hitachi Nuclear Energy
 General Atomics
 Global First Power
+HolosGen
 Holtec International
+Hyperion Power (Gen4)
 Kairos Power
+Last Energy
 Moltex Energy
 Nano Nuclear Energy
-NuScale Power
+NuScale Power Inc.
+Oak Ridge National Laboratory
 Oklo Inc.
+StarCore Nuclear
 TerraPower
 Terrestial Energy
-ThorCon Power
+ThorCon US, Inc.
 Ultra Safe Nuclear Corporation (USNC)
+University of California Berkeley
 Westinghouse Electric Company
 X-energy
