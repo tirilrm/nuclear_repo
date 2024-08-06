@@ -9,50 +9,40 @@ class CustomLoss(nn.Module):
         self.cosine_similarity = nn.CosineSimilarity(dim=-1)
 
     def similarity(self, a, b):
-        return self.cosine_similarity(a, b).item()
+        return self.cosine_similarity(a, b)
 
     def compute_instance_loss(self, pair_embeddings, predictions, triplet_embeddings):
-        '''
-        For pred in predictions:
-        Find the 'best matching pair' among triplets
-        If match > threshold check if predicted relation == gold relation
-        Else: check if predicted relation == '0'
-        '''
-        instance_loss = 0
-
         EMBEDDING_DIM = 768
 
+        pair_heads = pair_embeddings[:, :EMBEDDING_DIM]
+        pair_tails = pair_embeddings[:, EMBEDDING_DIM:2 * EMBEDDING_DIM]
+
+        gold_heads = triplet_embeddings[:, :EMBEDDING_DIM]
+        gold_tails = triplet_embeddings[:, EMBEDDING_DIM + 1:2 * EMBEDDING_DIM + 1]
+        gold_relations = triplet_embeddings[:, EMBEDDING_DIM:EMBEDDING_DIM + 1].long()
+
+        # Compute all pairwise similarities in a batch
+        head_similarities = self.similarity(pair_heads.unsqueeze(1), gold_heads.unsqueeze(0))
+        tail_similarities = self.similarity(pair_tails.unsqueeze(1), gold_tails.unsqueeze(0))
+        avg_similarities = (head_similarities + tail_similarities) / 2
+
+        instance_loss = 0
+
         for i in range(len(predictions)):
-            prediction = predictions[i] # Tensor of shape [1, num_classes]
-            pair_embedding = pair_embeddings[i]
-            pred_head = pair_embedding[:EMBEDDING_DIM] # e1_emb
-            pred_tail = pair_embedding[EMBEDDING_DIM:2*EMBEDDING_DIM] # e2_emb
+            prediction = predictions[i]  # Tensor of shape [num_classes]
+            similarities = avg_similarities[i]
 
-            best_similarity = 0
-            best_triplet = None
+            # Find the best triplet
+            best_similarity, best_triplet_idx = torch.max(similarities, dim=0)
 
-            for triplet in triplet_embeddings:
-                gold_head = triplet[:EMBEDDING_DIM]
-                gold_tail = triplet[EMBEDDING_DIM+1:2*EMBEDDING_DIM+1]
-
-                head_similarity = self.similarity(pred_head, gold_head)
-                tail_similarity = self.similarity(pred_tail, gold_tail)
-
-                if head_similarity > self.threshold and tail_similarity > self.threshold:
-                    avg_similarity = (head_similarity + tail_similarity) / 2
-
-                    if avg_similarity > best_similarity:
-                        best_similarity = avg_similarity
-                        best_triplet = triplet
-
-            if best_triplet is not None:
-                gold_relation = best_triplet[EMBEDDING_DIM:EMBEDDING_DIM+1]
-                target = torch.tensor(int(gold_relation), dtype=torch.long, device=predictions.device)
+            if best_similarity > self.threshold:
+                gold_relation = gold_relations[best_triplet_idx].squeeze()
             else:
-                target = torch.tensor(0, dtype=torch.long, device=predictions.device) # Default relation is '0'
+                gold_relation = torch.tensor(0, dtype=torch.long, device=predictions.device)  # Default relation is '0'
 
+            target = gold_relation.unsqueeze(0)
             prediction = prediction.unsqueeze(0)
-            loss = self.cross_entropy(prediction, target.unsqueeze(0))
+            loss = self.cross_entropy(prediction, target)
             instance_loss += loss
 
         avg_instance_loss = instance_loss / len(predictions)
@@ -60,8 +50,8 @@ class CustomLoss(nn.Module):
 
     def forward(self, batch_entity_pairs, batch_predictions, batch_triplets):
         batch_loss = 0
-        for entity_pairs, predicitons, triplets in zip(batch_entity_pairs, batch_predictions, batch_triplets):
-            instance_loss = self.compute_instance_loss(entity_pairs, predicitons, triplets)
+        for entity_pairs, predictions, triplets in zip(batch_entity_pairs, batch_predictions, batch_triplets):
+            instance_loss = self.compute_instance_loss(entity_pairs, predictions, triplets)
             batch_loss += instance_loss
 
         avg_loss = batch_loss / len(batch_predictions)

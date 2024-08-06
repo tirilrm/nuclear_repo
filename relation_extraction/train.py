@@ -21,11 +21,16 @@ hidden_size = 256       # may require tuning
 num_classes = 97        # 96 different relations plus '0' for no relation
 learning_rate = 0.001   # may require tuning
 threshold = 0.85
-batch_size = 32
+
+batch_size = 8
 num_epochs = 5
 
 PAIR_EMBEDDING_WIDTH = 1540
 PAIR_EMBEDDING_LENGTH = 3000
+
+###########
+LENGTH = -1
+###########
 
 keywords = {
     'FUEL': 
@@ -79,14 +84,13 @@ keywords = {
 # 1. Load datasets
 print('Loading datasets...')
 
-length = 50
 train = CustomDataset.CustomDocREDDataset(
     dataset='train_annotated',
     input_size=input_size,
     model_name=model_name,
     custom_keywords=keywords,
     device=device,
-    length = length*2
+    length = LENGTH*2
 )
 test = CustomDataset.CustomDocREDDataset(
     dataset='test',
@@ -94,7 +98,7 @@ test = CustomDataset.CustomDocREDDataset(
     model_name=model_name,
     custom_keywords=keywords,
     device=device,
-    length = length
+    length = LENGTH
 )
 val = CustomDataset.CustomDocREDDataset(
     dataset='validation',
@@ -102,7 +106,7 @@ val = CustomDataset.CustomDocREDDataset(
     model_name=model_name,
     custom_keywords=keywords,
     device=device,
-    length = length
+    length = LENGTH
 )
 
 # 2. Make data loaders for efficient batching
@@ -140,9 +144,10 @@ avg_loss = 0.0
 avg_val_loss = 0.0
 
 for epoch in range(num_epochs):
+    print(f"Currently on: epoch {epoch}")
     current = time.time()
-    time_passed = current-start
-    if time_passed - start >= 3*24*60*60:
+    time_passed = current - start
+    if time_passed >= 3*24*60*60:
         print('Exceeded maximum amount of time. Saving models...')
         break
 
@@ -156,7 +161,6 @@ for epoch in range(num_epochs):
 
         # Forward pass
         preds = model(text_embeddings, pair_embeddings) # shape [batch_size, num_pairs]
-
         # Calculate loss
         loss = loss_fn(pair_embeddings, preds, triplet_embeddings)
 
@@ -164,6 +168,10 @@ for epoch in range(num_epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+
+        # Optimise memory usage
+        del loss, preds
+        torch.cuda.empty_cache()
 
         total_loss += loss.item()
 
@@ -214,3 +222,4 @@ torch.save({
     'val_loss': avg_val_loss # Using last calculated
 }, checkpoint_path)
 print(f"Checkpoint saved to {checkpoint_path}")
+print(f"Training took {(time.time()-start)/60:.2f} minutes")
