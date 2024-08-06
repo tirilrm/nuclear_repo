@@ -11,18 +11,21 @@ class KnowledgeExtractor():
         self.ner_pipeline = pipeline('ner', model=model_name, tokenizer=self.tokenizer)
         self.custom_keywords = custom_keywords
         self.relik = Relik.from_pretrained("sapienzanlp/relik-relation-extraction-nyt-large")
+        self.untreated_articles = []
     
     ############################
     #### Relation Extractor ####
     ############################
-    def extract_relik_triplets(self, sents):
+
+    def process_relik_output(self, relik_output):
         extracted_triplets = []
 
-        relik_out: RelikOutput = self.relik(sents)
+        if not isinstance(relik_output, list):
+            relik_output = [relik_output]
 
-        for output in relik_out:
+        for output in relik_output:
             output_dict = asdict(output)
-            triplets = output_dict['triplets']
+            triplets = output_dict.get('triplets', [])
             if triplets:
                 for triplet in triplets:
                     head = triplet.subject.text
@@ -34,9 +37,23 @@ class KnowledgeExtractor():
                         'relation': label,
                         'tail': tail,
                         'confidence': confidence
-                    }) 
-        
+                    })
+
         return extracted_triplets
+
+    def extract_relik_triplets(self, sents, url):
+
+        try:
+            relik_out: RelikOutput = self.relik(sents)
+            return self.process_relik_output(relik_out)
+        except IndexError:
+            extracted_triplets = []
+            self.untreated_articles.append({
+                'url': url,
+                'sents': sents
+            })
+            return []
+            
 
 
     ##########################

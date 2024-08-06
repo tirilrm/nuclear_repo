@@ -1,298 +1,66 @@
 [
     {
-        "url": "https://www.nucnet.org/news/kyrgyzstan-6-5-2024",
+        "url": "https://www.nucnet.org/news/nuclear-alliance-plans-roadmap-to-projects-of-common-interest-that-can-benefit-from-state-aid-3-3-2024",
         "triplets": [
             {
-                "head": "Kul Province",
+                "head": "Europe",
                 "relation": "contains",
-                "tail": "Issyk",
+                "tail": "Brussels",
+                "confidence": 0.9599999785423279
+            },
+            {
+                "head": "Europe",
+                "relation": "contains",
+                "tail": "New Nuclear Watch Institute",
                 "confidence": 1.0
             },
             {
-                "head": "Asia",
-                "relation": "contains",
-                "tail": "Soviet Union",
-                "confidence": 1.0
-            },
-            {
-                "head": "EBRD",
+                "head": "Tim Yeo",
                 "relation": "company",
-                "tail": "European Bank for Reconstruction and Development",
+                "tail": "NNWI",
                 "confidence": 1.0
             },
             {
-                "head": "Asia",
-                "relation": "contains",
-                "tail": "Central Asia",
-                "confidence": 0.9100000262260437
-            },
-            {
-                "head": "Asia",
-                "relation": "contains",
-                "tail": "Kyrgyzstan",
+                "head": "Chirayu Batra",
+                "relation": "company",
+                "tail": "Terra Praxis",
                 "confidence": 1.0
             },
             {
-                "head": "Asia",
+                "head": "Fredrik Vitaback",
+                "relation": "company",
+                "tail": "Hitachi",
+                "confidence": 1.0
+            },
+            {
+                "head": "Europe",
                 "relation": "contains",
-                "tail": "Soviet Union",
+                "tail": "Vitaback",
+                "confidence": 1.0
+            },
+            {
+                "head": "Yves Desbazeille",
+                "relation": "company",
+                "tail": "SMR",
                 "confidence": 1.0
             }
         ],
         "entities": [
             {
-                "word": "Bishkek",
-                "entity": "ORG"
-            },
-            {
-                "word": "Kyrgyzstan",
-                "entity": "LOC"
-            },
-            {
-                "word": "Kyrgyz",
-                "entity": "LOC"
-            },
-            {
-                "word": "nuclear power plant",
-                "entity": "REACTOR"
-            },
-            {
-                "word": "Sadyr Japarov",
-                "entity": "PER"
-            },
-            {
-                "word": "Issyk-Kul Province",
-                "entity": "LOC"
-            },
-            {
-                "word": "Kyzyl-Ompol",
-                "entity": "LOC"
-            },
-            {
-                "word": "Japarov",
-                "entity": "PER"
-            },
-            {
-                "word": "Kyrgyzstan",
-                "entity": "LOC"
-            },
-            {
-                "word": "Russia",
-                "entity": "LOC"
-            },
-            {
-                "word": "Rosatom",
-                "entity": "ORG"
-            },
-            {
-                "word": "Asian",
+                "word": "Brussels",
                 "entity": "MISC"
             },
             {
-                "word": "small modular reactor",
-                "entity": "SMR"
-            },
-            {
-                "word": "Russian",
-                "entity": "MISC"
-            },
-            {
-                "word": "Tass",
+                "word": "European Industrial Alliance on Small Modular Reactors",
                 "entity": "ORG"
-            },
-            {
-                "word": "Taalaibek Ibraev",
-                "entity": "PER"
-            },
-            {
-                "word": "Kyrgyzstan",
-                "entity": "LOC"
-            },
-            {
-                "word": "Kyrgyzstan",
-                "entity": "LOC"
             },
             {
                 "word": "SM",
                 "entity": "MISC"
             },
             {
-                "word": "Asian",
-                "entity": "MISC"
-            },
-            {
-                "word": "Rosatom",
-                "entity": "ORG"
-            },
-            {
-                "word": "SM",
-                "entity": "ORG"
-            },
-            {
-                "word": "AP",
-                "entity": "ORG"
-            },
-            {
-                "word": "Kyrgyzstan",
+                "word": "Europe",
                 "entity": "LOC"
-            },
-            {
-                "word": "Covid 19",
-                "entity": "MISC"
-            },
-            {
-                "word": "Western",
-                "entity": "MISC"
-            },
-            {
-                "word": "Russia",
-                "entity": "LOC"
-            },
-            {
-                "word": "Ukraine",
-                "entity": "LOC"
-            },
-            {
-                "word": "Kyrgyzstan",
-                "entity": "LOC"
-            },
-            {
-                "word": "Soviet",
-                "entity": "MISC"
-            },
-            {
-                "word": "radioactive waste",
-                "entity": "FUEL_CYCLE"
-            },
-            {
-                "word": "Central Asia",
-                "entity": "LOC"
-            },
-            {
-                "word": "Soviet Union",
-                "entity": "LOC"
-            },
-            {
-                "word": "European Bank for Reconstruction and Development",
-                "entity": "ORG"
-            },
-            {
-                "word": "EBRD",
-                "entity": "ORG"
-            },
-            {
-                "word": "EBRD",
-                "entity": "ORG"
-            },
-            {
-                "word": "EBRD",
-                "entity": "ORG"
-            },
-            {
-                "word": "European Union",
-                "entity": "ORG"
-            },
-            {
-                "word": "Soviet",
-                "entity": "MISC"
-            },
-            {
-                "word": "Central Asia",
-                "entity": "LOC"
-            },
-            {
-                "word": "EU",
-                "entity": "ORG"
-            },
-            {
-                "word": "Belgium",
-                "entity": "LOC"
-            },
-            {
-                "word": "Lithuania",
-                "entity": "LOC"
-            },
-            {
-                "word": "Norway",
-                "entity": "LOC"
-            },
-            {
-                "word": "Spain",
-                "entity": "LOC"
-            },
-            {
-                "word": "Switzerland",
-                "entity": "LOC"
-            },
-            {
-                "word": "US",
-                "entity": "LOC"
-            },
-            {
-                "word": "Central Asia",
-                "entity": "LOC"
-            },
-            {
-                "word": "Kyrgyzstan",
-                "entity": "LOC"
-            },
-            {
-                "word": "Soviet Union",
-                "entity": "LOC"
-            },
-            {
-                "word": "EBRD",
-                "entity": "ORG"
-            }
-        ]
-    },
-    {
-        "url": "https://www.nucnet.org/news/industry-manifesto-calls-for-action-on-nuclear-from-next-commission-6-4-2024",
-        "triplets": [],
-        "entities": [
-            {
-                "word": "Sector",
-                "entity": "ORG"
-            },
-            {
-                "word": "EU",
-                "entity": "ORG"
-            },
-            {
-                "word": "European",
-                "entity": "MISC"
-            },
-            {
-                "word": "European Commission",
-                "entity": "ORG"
-            },
-            {
-                "word": "EU",
-                "entity": "ORG"
-            },
-            {
-                "word": "security",
-                "entity": "POLITICAL"
-            },
-            {
-                "word": "Commission",
-                "entity": "ORG"
-            },
-            {
-                "word": "EU",
-                "entity": "ORG"
-            },
-            {
-                "word": "nuclear fuel",
-                "entity": "FUEL"
-            },
-            {
-                "word": "Commission",
-                "entity": "ORG"
-            },
-            {
-                "word": "Commission",
-                "entity": "ORG"
             },
             {
                 "word": "Yves Desbazeille",
@@ -303,7 +71,79 @@
                 "entity": "ORG"
             },
             {
-                "word": "NucNet",
+                "word": "London",
+                "entity": "LOC"
+            },
+            {
+                "word": "Desbaze",
+                "entity": "PER"
+            },
+            {
+                "word": "New Nuclear Watch Institute",
+                "entity": "ORG"
+            },
+            {
+                "word": "NNWI",
+                "entity": "ORG"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "Desbaze",
+                "entity": "PER"
+            },
+            {
+                "word": "European SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Desbaze",
+                "entity": "PER"
+            },
+            {
+                "word": "European",
+                "entity": "MISC"
+            },
+            {
+                "word": "Desba",
+                "entity": "PER"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "EU",
+                "entity": "MISC"
+            },
+            {
+                "word": "Desbaze",
+                "entity": "ORG"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "EU",
+                "entity": "ORG"
+            },
+            {
+                "word": "Just Transition Fund",
+                "entity": "ORG"
+            },
+            {
+                "word": "US",
+                "entity": "MISC"
+            },
+            {
+                "word": "Project Phoenix",
                 "entity": "ORG"
             },
             {
@@ -311,23 +151,1329 @@
                 "entity": "PER"
             },
             {
-                "word": "European Parliament",
+                "word": "Project Phoenix",
                 "entity": "ORG"
             },
             {
-                "word": "European People\u2019s Party",
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Net Zero Industrial Act",
+                "entity": "MISC"
+            },
+            {
+                "word": "Desbaze",
+                "entity": "PER"
+            },
+            {
+                "word": "Desbaze",
+                "entity": "PER"
+            },
+            {
+                "word": "NNWI",
                 "entity": "ORG"
             },
             {
-                "word": "EPP",
+                "word": "Tim Yeo",
+                "entity": "PER"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Chirayu Batra",
+                "entity": "PER"
+            },
+            {
+                "word": "Terra Praxis",
                 "entity": "ORG"
             },
             {
-                "word": "Socialists and Democrats",
+                "word": "NNWI",
                 "entity": "ORG"
             },
             {
-                "word": "Greens",
+                "word": "Repowering Coal",
+                "entity": "ORG"
+            },
+            {
+                "word": "SM",
+                "entity": "ORG"
+            },
+            {
+                "word": "Bat",
+                "entity": "PER"
+            },
+            {
+                "word": "Bat",
+                "entity": "PER"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Bat",
+                "entity": "PER"
+            },
+            {
+                "word": "Batra",
+                "entity": "ORG"
+            },
+            {
+                "word": "SM",
+                "entity": "ORG"
+            },
+            {
+                "word": "Terra Praxis",
+                "entity": "ORG"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Fredrik Vitaback",
+                "entity": "PER"
+            },
+            {
+                "word": "GE-Hitachi",
+                "entity": "ORG"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "security",
+                "entity": "POLITICAL"
+            },
+            {
+                "word": "GE Hitachi",
+                "entity": "ORG"
+            },
+            {
+                "word": "BWRX",
+                "entity": "MISC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "GE",
+                "entity": "ORG"
+            },
+            {
+                "word": "Hitachi",
+                "entity": "ORG"
+            },
+            {
+                "word": "Vitaback",
+                "entity": "PER"
+            },
+            {
+                "word": "Estonia",
+                "entity": "LOC"
+            },
+            {
+                "word": "Sweden",
+                "entity": "LOC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "BWRX 300",
+                "entity": "MISC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "Vitaback",
+                "entity": "ORG"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Estonia",
+                "entity": "LOC"
+            },
+            {
+                "word": "Sweden",
+                "entity": "LOC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "GEH",
+                "entity": "ORG"
+            },
+            {
+                "word": "BWRX",
+                "entity": "MISC"
+            },
+            {
+                "word": "small modular reactor",
+                "entity": "SMR"
+            },
+            {
+                "word": "Yves Desbazeille",
+                "entity": "PER"
+            },
+            {
+                "word": "SMR",
+                "entity": "ORG"
+            }
+        ]
+    },
+    {
+        "url": "https://www.nucnet.org/news/mou-could-lead-to-transportable-microreactors-for-mines-and-remote-communities-3-2-2024",
+        "triplets": [
+            {
+                "head": "Des N\u00ebdh\u00e9",
+                "relation": "nationality",
+                "tail": "Canada",
+                "confidence": 1.0
+            },
+            {
+                "head": "Des N\u00ebdh\u00e9 also said they planned to engage with Indigenous Peoples",
+                "relation": "nationality",
+                "tail": "Canada",
+                "confidence": 1.0
+            }
+        ],
+        "entities": [
+            {
+                "word": "Canada",
+                "entity": "MISC"
+            },
+            {
+                "word": "Prodigy Clean Energy",
+                "entity": "ORG"
+            },
+            {
+                "word": "Des N\u00ebdh\u00e9 Group",
+                "entity": "ORG"
+            },
+            {
+                "word": "Canada",
+                "entity": "LOC"
+            },
+            {
+                "word": "Prodi",
+                "entity": "ORG"
+            },
+            {
+                "word": "nuclear power plant",
+                "entity": "REACTOR"
+            },
+            {
+                "word": "Prodigy",
+                "entity": "ORG"
+            },
+            {
+                "word": "T",
+                "entity": "ORG"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "eVinci",
+                "entity": "ORG"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "T",
+                "entity": "ORG"
+            },
+            {
+                "word": "Prodigy",
+                "entity": "ORG"
+            },
+            {
+                "word": "Canada",
+                "entity": "LOC"
+            },
+            {
+                "word": "Prodigy T",
+                "entity": "ORG"
+            },
+            {
+                "word": "TNPP",
+                "entity": "ORG"
+            },
+            {
+                "word": "TNPP",
+                "entity": "ORG"
+            },
+            {
+                "word": "small modular reactor",
+                "entity": "SMR"
+            },
+            {
+                "word": "Canada",
+                "entity": "LOC"
+            },
+            {
+                "word": "T",
+                "entity": "ORG"
+            },
+            {
+                "word": "Indigenous Peoples",
+                "entity": "ORG"
+            },
+            {
+                "word": "Prodigy",
+                "entity": "ORG"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "TNPP",
+                "entity": "ORG"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "LOC"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "TNPP",
+                "entity": "ORG"
+            },
+            {
+                "word": "e",
+                "entity": "MISC"
+            },
+            {
+                "word": "TNPP",
+                "entity": "ORG"
+            },
+            {
+                "word": "Pro",
+                "entity": "ORG"
+            },
+            {
+                "word": "Des N\u00ebdh\u00e9",
+                "entity": "ORG"
+            },
+            {
+                "word": "Indigenous Peoples",
+                "entity": "ORG"
+            },
+            {
+                "word": "Canada",
+                "entity": "LOC"
+            },
+            {
+                "word": "TNPP",
+                "entity": "ORG"
+            },
+            {
+                "word": "Indigenous",
+                "entity": "MISC"
+            },
+            {
+                "word": "TNPP",
+                "entity": "ORG"
+            },
+            {
+                "word": "Prodigy",
+                "entity": "ORG"
+            },
+            {
+                "word": "US",
+                "entity": "LOC"
+            },
+            {
+                "word": "NuScale Power",
+                "entity": "ORG"
+            },
+            {
+                "word": "small modular reactor",
+                "entity": "SMR"
+            },
+            {
+                "word": "Prodigy",
+                "entity": "ORG"
+            }
+        ]
+    },
+    {
+        "url": "https://www.nucnet.org/news/regulator-renews-operating-licence-for-atucha-2-nuclear-plant-3-1-2024",
+        "triplets": [],
+        "entities": [
+            {
+                "word": "Argentina",
+                "entity": "LOC"
+            },
+            {
+                "word": "Nucleoelectrica Argentina",
+                "entity": "ORG"
+            },
+            {
+                "word": "Atucha 2",
+                "entity": "LOC"
+            },
+            {
+                "word": "nuclear power plant",
+                "entity": "REACTOR"
+            },
+            {
+                "word": "Autoridad Regulatoria Nuclear",
+                "entity": "ORG"
+            },
+            {
+                "word": "ARN",
+                "entity": "ORG"
+            },
+            {
+                "word": "Atucha 2",
+                "entity": "MISC"
+            },
+            {
+                "word": "PHWR",
+                "entity": "ORG"
+            },
+            {
+                "word": "heavy water",
+                "entity": "FUEL"
+            },
+            {
+                "word": "heavy water reactor",
+                "entity": "SMR_DESIGN"
+            },
+            {
+                "word": "ARN",
+                "entity": "ORG"
+            },
+            {
+                "word": "Atucha",
+                "entity": "LOC"
+            },
+            {
+                "word": "Buenos Aires",
+                "entity": "LOC"
+            },
+            {
+                "word": "Buenos Aires Herald",
+                "entity": "ORG"
+            },
+            {
+                "word": "ARN",
+                "entity": "ORG"
+            },
+            {
+                "word": "Nucleoelectrica",
+                "entity": "ORG"
+            },
+            {
+                "word": "ARN",
+                "entity": "ORG"
+            },
+            {
+                "word": "Argentina",
+                "entity": "LOC"
+            },
+            {
+                "word": "Siemens KWU",
+                "entity": "MISC"
+            },
+            {
+                "word": "PHWR",
+                "entity": "ORG"
+            },
+            {
+                "word": "Atucha",
+                "entity": "LOC"
+            },
+            {
+                "word": "Candu",
+                "entity": "LOC"
+            },
+            {
+                "word": "Embalse",
+                "entity": "LOC"
+            },
+            {
+                "word": "Nucleoelectrica",
+                "entity": "ORG"
+            },
+            {
+                "word": "ARN",
+                "entity": "ORG"
+            },
+            {
+                "word": "Atucha-",
+                "entity": "ORG"
+            },
+            {
+                "word": "PHWR",
+                "entity": "ORG"
+            },
+            {
+                "word": "Argentina",
+                "entity": "LOC"
+            },
+            {
+                "word": "Argentina",
+                "entity": "LOC"
+            },
+            {
+                "word": "Atucha",
+                "entity": "LOC"
+            },
+            {
+                "word": "China",
+                "entity": "LOC"
+            },
+            {
+                "word": "Argentina",
+                "entity": "LOC"
+            },
+            {
+                "word": "Care",
+                "entity": "MISC"
+            },
+            {
+                "word": "Atucha",
+                "entity": "LOC"
+            },
+            {
+                "word": "Atucha",
+                "entity": "LOC"
+            },
+            {
+                "word": "Argentina",
+                "entity": "LOC"
+            }
+        ]
+    },
+    {
+        "url": "https://www.nucnet.org/news/ahead-of-brussels-summit-experts-outline-key-challenges-for-small-modular-reactor-commercialisation-3-4-2024",
+        "triplets": [
+            {
+                "head": "Europe",
+                "relation": "contains",
+                "tail": "Brussels",
+                "confidence": 1.0
+            },
+            {
+                "head": "Yves Desbazeilles",
+                "relation": "residence",
+                "tail": "Brussels",
+                "confidence": 1.0
+            },
+            {
+                "head": "Alexander De Croo",
+                "relation": "nationality",
+                "tail": "Belgium",
+                "confidence": 1.0
+            },
+            {
+                "head": "Tim Yeo",
+                "relation": "company",
+                "tail": "NucNet",
+                "confidence": 1.0
+            },
+            {
+                "head": "UK",
+                "relation": "contains",
+                "tail": "Yeo",
+                "confidence": 1.0
+            },
+            {
+                "head": "Europe",
+                "relation": "contains",
+                "tail": "UK",
+                "confidence": 1.0
+            },
+            {
+                "head": "Europe",
+                "relation": "contains",
+                "tail": "UK",
+                "confidence": 1.0
+            },
+            {
+                "head": "France",
+                "relation": "contains",
+                "tail": "EDF",
+                "confidence": 0.9399999976158142
+            },
+            {
+                "head": "Europe",
+                "relation": "contains",
+                "tail": "Russia",
+                "confidence": 1.0
+            },
+            {
+                "head": "EIB",
+                "relation": "company",
+                "tail": "European Investment Bank",
+                "confidence": 1.0
+            },
+            {
+                "head": "David Brown",
+                "relation": "company",
+                "tail": "Wood Mackenzie",
+                "confidence": 1.0
+            },
+            {
+                "head": "Canada",
+                "relation": "contains",
+                "tail": "Poland",
+                "confidence": 1.0
+            }
+        ],
+        "entities": [
+            {
+                "word": "SM",
+                "entity": "ORG"
+            },
+            {
+                "word": "G",
+                "entity": "MISC"
+            },
+            {
+                "word": "Nuclear Energy Summit",
+                "entity": "MISC"
+            },
+            {
+                "word": "NES",
+                "entity": "MISC"
+            },
+            {
+                "word": "Brussels",
+                "entity": "LOC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "small modular reactor",
+                "entity": "SMR"
+            },
+            {
+                "word": "NES",
+                "entity": "MISC"
+            },
+            {
+                "word": "Yves Desbaze",
+                "entity": "PER"
+            },
+            {
+                "word": "New Nuclear Watch Institute",
+                "entity": "ORG"
+            },
+            {
+                "word": "NNWI",
+                "entity": "ORG"
+            },
+            {
+                "word": "London",
+                "entity": "LOC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "NES",
+                "entity": "ORG"
+            },
+            {
+                "word": "Belgium",
+                "entity": "LOC"
+            },
+            {
+                "word": "Alexander De Croo",
+                "entity": "PER"
+            },
+            {
+                "word": "International Atomic Energy Agency",
+                "entity": "ORG"
+            },
+            {
+                "word": "Rafael Grossi",
+                "entity": "PER"
+            },
+            {
+                "word": "IAEA",
+                "entity": "ORG"
+            },
+            {
+                "word": "NNWI",
+                "entity": "ORG"
+            },
+            {
+                "word": "Tim Yeo",
+                "entity": "PER"
+            },
+            {
+                "word": "NucNet",
+                "entity": "ORG"
+            },
+            {
+                "word": "NES",
+                "entity": "ORG"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "UK",
+                "entity": "LOC"
+            },
+            {
+                "word": "Ye",
+                "entity": "PER"
+            },
+            {
+                "word": "UK",
+                "entity": "LOC"
+            },
+            {
+                "word": "SMR",
+                "entity": "MISC"
+            },
+            {
+                "word": "UK",
+                "entity": "LOC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "SMR",
+                "entity": "MISC"
+            },
+            {
+                "word": "SMR",
+                "entity": "MISC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "UK",
+                "entity": "LOC"
+            },
+            {
+                "word": "Ye",
+                "entity": "PER"
+            },
+            {
+                "word": "Rolls-Royce",
+                "entity": "ORG"
+            },
+            {
+                "word": "France",
+                "entity": "LOC"
+            },
+            {
+                "word": "EDF",
+                "entity": "ORG"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "European",
+                "entity": "MISC"
+            },
+            {
+                "word": "Italy",
+                "entity": "LOC"
+            },
+            {
+                "word": "France",
+                "entity": "LOC"
+            },
+            {
+                "word": "European Industrial Alliance",
+                "entity": "ORG"
+            },
+            {
+                "word": "SMR",
+                "entity": "ORG"
+            },
+            {
+                "word": "Ye",
+                "entity": "PER"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "Russia",
+                "entity": "LOC"
+            },
+            {
+                "word": "China",
+                "entity": "LOC"
+            },
+            {
+                "word": "North America",
+                "entity": "LOC"
+            },
+            {
+                "word": "Ye",
+                "entity": "PER"
+            },
+            {
+                "word": "European SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "EU",
+                "entity": "ORG"
+            },
+            {
+                "word": "EIB",
+                "entity": "ORG"
+            },
+            {
+                "word": "European Investment Bank",
+                "entity": "ORG"
+            },
+            {
+                "word": "EIB",
+                "entity": "ORG"
+            },
+            {
+                "word": "Ye",
+                "entity": "PER"
+            },
+            {
+                "word": "NES",
+                "entity": "ORG"
+            },
+            {
+                "word": "UK",
+                "entity": "MISC"
+            },
+            {
+                "word": "Wood Mackenzie",
+                "entity": "ORG"
+            },
+            {
+                "word": "SMR",
+                "entity": "ORG"
+            },
+            {
+                "word": "SMR",
+                "entity": "ORG"
+            },
+            {
+                "word": "G",
+                "entity": "MISC"
+            },
+            {
+                "word": "NuScale",
+                "entity": "MISC"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "David Brown",
+                "entity": "PER"
+            },
+            {
+                "word": "Wood Mackenzie",
+                "entity": "ORG"
+            },
+            {
+                "word": "US",
+                "entity": "LOC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "Canada",
+                "entity": "LOC"
+            },
+            {
+                "word": "UK",
+                "entity": "LOC"
+            },
+            {
+                "word": "South Korea",
+                "entity": "LOC"
+            },
+            {
+                "word": "US",
+                "entity": "LOC"
+            },
+            {
+                "word": "UK",
+                "entity": "LOC"
+            },
+            {
+                "word": "Japan",
+                "entity": "LOC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            }
+        ]
+    },
+    {
+        "url": "https://www.nucnet.org/news/government-could-complete-nuclear-project-audit-in-coming-weeks-3-3-2024",
+        "triplets": [
+            {
+                "head": "Donald Tusk",
+                "relation": "nationality",
+                "tail": "Poland",
+                "confidence": 1.0
+            },
+            {
+                "head": "Bechtel",
+                "relation": "company",
+                "tail": "Westinghouse Electric",
+                "confidence": 0.9800000190734863
+            },
+            {
+                "head": "Pomerania",
+                "relation": "contains",
+                "tail": "Choczewo",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains",
+                "tail": "Bando",
+                "confidence": 1.0
+            },
+            {
+                "head": "Pomerania",
+                "relation": "division",
+                "tail": "Poland",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains",
+                "tail": "Warsaw",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "capital",
+                "tail": "Warsaw",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains",
+                "tail": "Pomerania",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains division",
+                "tail": "Pomerania",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains",
+                "tail": "Warsaw",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "capital",
+                "tail": "Warsaw",
+                "confidence": 1.0
+            },
+            {
+                "head": "Pomerania",
+                "relation": "division",
+                "tail": "Poland",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains",
+                "tail": "Warsaw",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "capital",
+                "tail": "Warsaw",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains",
+                "tail": "Pomerania",
+                "confidence": 1.0
+            },
+            {
+                "head": "Poland",
+                "relation": "contains division",
+                "tail": "Pomerania",
+                "confidence": 1.0
+            }
+        ],
+        "entities": [
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "Bechtel",
+                "entity": "ORG"
+            },
+            {
+                "word": "Polish",
+                "entity": "MISC"
+            },
+            {
+                "word": "Maciej Bando",
+                "entity": "PER"
+            },
+            {
+                "word": "nuclear power plant",
+                "entity": "REACTOR"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "Donald Tusk",
+                "entity": "PER"
+            },
+            {
+                "word": "Bando",
+                "entity": "PER"
+            },
+            {
+                "word": "BiznesAlert",
+                "entity": "ORG"
+            },
+            {
+                "word": "US",
+                "entity": "MISC"
+            },
+            {
+                "word": "Westinghouse Electric",
+                "entity": "ORG"
+            },
+            {
+                "word": "Bechtel",
+                "entity": "ORG"
+            },
+            {
+                "word": "South Korea",
+                "entity": "LOC"
+            },
+            {
+                "word": "France",
+                "entity": "LOC"
+            },
+            {
+                "word": "Bando",
+                "entity": "PER"
+            },
+            {
+                "word": "Americans",
+                "entity": "MISC"
+            },
+            {
+                "word": "Lubiatowo",
+                "entity": "LOC"
+            },
+            {
+                "word": "Kopalino",
+                "entity": "LOC"
+            },
+            {
+                "word": "Choczewo",
+                "entity": "LOC"
+            },
+            {
+                "word": "Pomerania",
+                "entity": "LOC"
+            },
+            {
+                "word": "nuclear power plant",
+                "entity": "REACTOR"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "Bando",
+                "entity": "PER"
+            },
+            {
+                "word": "small modular reactor",
+                "entity": "SMR"
+            },
+            {
+                "word": "Bando",
+                "entity": "PER"
+            },
+            {
+                "word": "Bando",
+                "entity": "PER"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "Warsaw",
+                "entity": "LOC"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "AP",
+                "entity": "MISC"
+            },
+            {
+                "word": "Lubiatowo-Kopalino",
+                "entity": "LOC"
+            },
+            {
+                "word": "Pomerania",
+                "entity": "LOC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "South Korea",
+                "entity": "MISC"
+            },
+            {
+                "word": "APR14",
+                "entity": "MISC"
+            },
+            {
+                "word": "Patnow",
+                "entity": "LOC"
+            },
+            {
+                "word": "Warsaw",
+                "entity": "LOC"
+            },
+            {
+                "word": "SMR",
+                "entity": "ORG"
+            },
+            {
+                "word": "Orlen Sythnos Green Energy",
+                "entity": "ORG"
+            },
+            {
+                "word": "Synthos Green Energy",
+                "entity": "ORG"
+            },
+            {
+                "word": "PKN Orlen",
+                "entity": "ORG"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            },
+            {
+                "word": "KGHM Polska Miedz",
+                "entity": "ORG"
+            },
+            {
+                "word": "small modular reactor",
+                "entity": "SMR"
+            },
+            {
+                "word": "Warsaw",
+                "entity": "LOC"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "AP",
+                "entity": "MISC"
+            },
+            {
+                "word": "Pomerania",
+                "entity": "LOC"
+            },
+            {
+                "word": "Poland",
+                "entity": "LOC"
+            }
+        ]
+    },
+    {
+        "url": "https://www.nucnet.org/news/westinghouse-poised-for-deployment-of-ap300-small-modular-reactor-3-2-2024",
+        "triplets": [
+            {
+                "head": "Europe",
+                "relation": "contains",
+                "tail": "London",
+                "confidence": 1.0
+            },
+            {
+                "head": "Roman Romanowski",
+                "relation": "company",
+                "tail": "Westinghouse",
+                "confidence": 1.0
+            },
+            {
+                "head": "Westinghouse",
+                "relation": "contains",
+                "tail": "Romanowski",
+                "confidence": 1.0
+            },
+            {
+                "head": "UK",
+                "relation": "contains",
+                "tail": "Office for Nuclear Regulation",
+                "confidence": 1.0
+            },
+            {
+                "head": "UK",
+                "relation": "contains",
+                "tail": "Office for Nuclear Regulation and the Environment Agency",
+                "confidence": 1.0
+            },
+            {
+                "head": "UK",
+                "relation": "contains",
+                "tail": "Environment Agency",
+                "confidence": 1.0
+            },
+            {
+                "head": "England",
+                "relation": "contains",
+                "tail": "Teesside",
+                "confidence": 1.0
+            },
+            {
+                "head": "Georgia",
+                "relation": "contains",
+                "tail": "Vogtle",
+                "confidence": 1.0
+            }
+        ],
+        "entities": [
+            {
+                "word": "London",
+                "entity": "LOC"
+            },
+            {
+                "word": "European",
+                "entity": "MISC"
+            },
+            {
+                "word": "post",
+                "entity": "MISC"
+            },
+            {
+                "word": "Cop28",
+                "entity": "MISC"
+            },
+            {
+                "word": "small modular reactor",
+                "entity": "SMR"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "London",
+                "entity": "LOC"
+            },
+            {
+                "word": "SM",
+                "entity": "MISC"
+            },
+            {
+                "word": "Europe",
+                "entity": "LOC"
+            },
+            {
+                "word": "UK New Nuclear Watch Institute",
+                "entity": "ORG"
+            },
+            {
+                "word": "NNWI",
+                "entity": "ORG"
+            },
+            {
+                "word": "NucNet",
                 "entity": "ORG"
             },
             {
@@ -339,165 +1485,192 @@
                 "entity": "MISC"
             },
             {
-                "word": "EU",
+                "word": "US",
+                "entity": "LOC"
+            },
+            {
+                "word": "Westinghouse",
                 "entity": "ORG"
             },
             {
-                "word": "EPP",
-                "entity": "ORG"
+                "word": "AP30",
+                "entity": "MISC"
             },
             {
-                "word": "Poland",
-                "entity": "LOC"
+                "word": "Roman Romanowski",
+                "entity": "PER"
             },
             {
-                "word": "Bulgaria",
-                "entity": "LOC"
-            },
-            {
-                "word": "Belgium",
-                "entity": "LOC"
-            },
-            {
-                "word": "Romania",
-                "entity": "LOC"
-            },
-            {
-                "word": "Slovenia",
-                "entity": "LOC"
-            },
-            {
-                "word": "Sweden",
-                "entity": "LOC"
-            },
-            {
-                "word": "Finland",
-                "entity": "LOC"
-            },
-            {
-                "word": "EU",
-                "entity": "ORG"
-            },
-            {
-                "word": "Netherlands",
-                "entity": "LOC"
-            },
-            {
-                "word": "Czech Republic",
-                "entity": "LOC"
-            },
-            {
-                "word": "EPP",
-                "entity": "ORG"
+                "word": "nuclear fuel",
+                "entity": "FUEL"
             },
             {
                 "word": "small modular reactor",
                 "entity": "SMR"
-            }
-        ]
-    },
-    {
-        "url": "https://www.nucnet.org/news/parliament-resolution-paves-way-for-establishing-nuclear-energy-legislation-6-4-2024",
-        "triplets": [
+            },
             {
-                "head": "Estonia",
-                "relation": "contains",
-                "tail": "Fermi Energia",
-                "confidence": 1.0
-            }
-        ],
-        "entities": [
+                "word": "Romanowski",
+                "entity": "PER"
+            },
             {
-                "word": "Estonia",
+                "word": "Westinghouse",
                 "entity": "LOC"
             },
             {
-                "word": "Nuclear Energy and Safety Act",
+                "word": "AP1000",
                 "entity": "MISC"
             },
             {
-                "word": "Baltic",
+                "word": "AP300",
                 "entity": "MISC"
             },
             {
-                "word": "ERR",
+                "word": "Romano",
+                "entity": "PER"
+            },
+            {
+                "word": "AP300",
+                "entity": "MISC"
+            },
+            {
+                "word": "AP1000",
+                "entity": "MISC"
+            },
+            {
+                "word": "AP300",
+                "entity": "MISC"
+            },
+            {
+                "word": "Westinghouse",
                 "entity": "ORG"
             },
             {
-                "word": "ERR",
+                "word": "AP300",
+                "entity": "MISC"
+            },
+            {
+                "word": "Westinghouse",
                 "entity": "ORG"
             },
             {
-                "word": "Estonia",
+                "word": "AP300",
+                "entity": "MISC"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "NRC",
+                "entity": "ORG"
+            },
+            {
+                "word": "US Nuclear Regulatory Commission",
+                "entity": "ORG"
+            },
+            {
+                "word": "AP300",
+                "entity": "MISC"
+            },
+            {
+                "word": "AP300",
+                "entity": "MISC"
+            },
+            {
+                "word": "UK",
                 "entity": "LOC"
             },
             {
-                "word": "security",
+                "word": "Office for Nuclear Regulation",
+                "entity": "ORG"
+            },
+            {
+                "word": "Environment Agency",
+                "entity": "ORG"
+            },
+            {
+                "word": "AP30",
+                "entity": "MISC"
+            },
+            {
+                "word": "Teesside",
+                "entity": "LOC"
+            },
+            {
+                "word": "England",
+                "entity": "LOC"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "Community Nuclear Power",
+                "entity": "ORG"
+            },
+            {
+                "word": "AP300 SMR",
+                "entity": "MISC"
+            },
+            {
+                "word": "AP100",
+                "entity": "MISC"
+            },
+            {
+                "word": "China",
+                "entity": "LOC"
+            },
+            {
+                "word": "UK",
+                "entity": "LOC"
+            },
+            {
+                "word": "US",
+                "entity": "LOC"
+            },
+            {
+                "word": "Vogtle",
+                "entity": "LOC"
+            },
+            {
+                "word": "Georgia",
+                "entity": "LOC"
+            },
+            {
+                "word": "China",
+                "entity": "LOC"
+            },
+            {
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "AP300",
+                "entity": "MISC"
+            },
+            {
+                "word": "AP1000",
+                "entity": "MISC"
+            },
+            {
+                "word": "AP1000",
+                "entity": "MISC"
+            },
+            {
+                "word": "I&C",
+                "entity": "ORG"
+            },
+            {
+                "word": "safety",
                 "entity": "POLITICAL"
             },
             {
-                "word": "Estonian",
+                "word": "Westinghouse",
+                "entity": "ORG"
+            },
+            {
+                "word": "AP300",
                 "entity": "MISC"
-            },
-            {
-                "word": "ERR",
-                "entity": "ORG"
-            },
-            {
-                "word": "Estonia",
-                "entity": "LOC"
-            },
-            {
-                "word": "Estonia",
-                "entity": "LOC"
-            },
-            {
-                "word": "small modular reactor",
-                "entity": "SMR"
-            },
-            {
-                "word": "Estonian",
-                "entity": "MISC"
-            },
-            {
-                "word": "Fermi Energia",
-                "entity": "ORG"
-            },
-            {
-                "word": "SMR",
-                "entity": "MISC"
-            },
-            {
-                "word": "Estonia",
-                "entity": "LOC"
-            },
-            {
-                "word": "GE",
-                "entity": "MISC"
-            },
-            {
-                "word": "Hitachi",
-                "entity": "ORG"
-            },
-            {
-                "word": "BWRX",
-                "entity": "MISC"
-            },
-            {
-                "word": "Fermi Energia",
-                "entity": "ORG"
-            },
-            {
-                "word": "NucNet",
-                "entity": "ORG"
-            },
-            {
-                "word": "Fermi Energia",
-                "entity": "ORG"
-            },
-            {
-                "word": "Tallinn",
-                "entity": "LOC"
             }
         ]
     }
