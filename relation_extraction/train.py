@@ -22,6 +22,8 @@ num_classes = 97        # 96 different relations plus '0' for no relation
 learning_rate = 0.001   # may require tuning
 threshold = 0.85
 
+patience = 3
+min_delta = 0.001
 batch_size = 8
 num_epochs = 5
 
@@ -29,7 +31,7 @@ PAIR_EMBEDDING_WIDTH = 1540
 PAIR_EMBEDDING_LENGTH = 3000
 
 ###########
-LENGTH = 32
+LENGTH = 10
 ###########
 
 keywords = {
@@ -142,10 +144,12 @@ print('Starting training...')
 start = time.time()
 avg_loss = 0.0
 avg_val_loss = 0.0
+best_val_loss = float('inf')
+num_epochs_no_improve = 0
 
 for epoch in range(num_epochs):
     print(f"Currently on: Epoch {epoch}")
-    
+
     current = time.time()
     time_passed = current - start
     if time_passed >= 3*24*60*60:
@@ -208,6 +212,21 @@ for epoch in range(num_epochs):
         'loss': avg_loss,
         'val_loss': avg_val_loss
     }, checkpoint_path)
+
+    # Early stopping check
+    if avg_val_loss < best_val_loss - min_delta:
+        best_val_loss = avg_val_loss
+        num_epochs_no_improve = 0
+
+        # Save best model
+        best_model_save_path = "models/best_model.pth"
+        torch.save(model.state_dict(), best_model_save_path)
+    else:
+        num_epochs_no_improve += 1
+    
+    if num_epochs_no_improve >= patience:
+        print(f"Early stopping triggered after {epoch+1} epochs with patience of {patience}.")
+        break
 
 # 6. Save final model and checkpoint
 model_save_path = "models/model_epoch_final.pth"
