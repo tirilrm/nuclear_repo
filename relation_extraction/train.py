@@ -29,7 +29,7 @@ PAIR_EMBEDDING_WIDTH = 1540
 PAIR_EMBEDDING_LENGTH = 3000
 
 ###########
-LENGTH = -1
+LENGTH = 32
 ###########
 
 keywords = {
@@ -144,7 +144,8 @@ avg_loss = 0.0
 avg_val_loss = 0.0
 
 for epoch in range(num_epochs):
-    print(f"Currently on: epoch {epoch}")
+    print(f"Currently on: Epoch {epoch}")
+    
     current = time.time()
     time_passed = current - start
     if time_passed >= 3*24*60*60:
@@ -169,11 +170,11 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
 
+        total_loss += loss.item()
+
         # Optimise memory usage
         del loss, preds
         torch.cuda.empty_cache()
-
-        total_loss += loss.item()
 
     avg_loss = total_loss / len(train_loader)
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
