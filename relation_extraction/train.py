@@ -24,7 +24,7 @@ threshold = 0.85
 
 patience = 3
 min_delta = 0.001
-batch_size = 8
+batch_size = 4
 num_epochs = 5
 
 PAIR_EMBEDDING_WIDTH = 1540
@@ -147,6 +147,7 @@ avg_val_loss = 0.0
 best_val_loss = float('inf')
 num_epochs_no_improve = 0
 
+accumulation_steps = 4
 for epoch in range(num_epochs):
     print(f"Currently on: Epoch {epoch}")
 
@@ -158,8 +159,9 @@ for epoch in range(num_epochs):
 
     model.train()
     total_loss = 0
+    optimizer.zero_grad()
 
-    for batch in train_loader:
+    for i, batch in enumerate(train_loader):
         text_embeddings = batch['text_embeddings'].to(device)
         pair_embeddings = batch['pair_embeddings'].to(device)
         triplet_embeddings = batch['triplet_embeddings'].to(device)
@@ -168,13 +170,16 @@ for epoch in range(num_epochs):
         preds = model(text_embeddings, pair_embeddings) # shape [batch_size, num_pairs]
         # Calculate loss
         loss = loss_fn(pair_embeddings, preds, triplet_embeddings)
+        loss = loss / accumulation_steps
 
         # Backwards pass
-        optimizer.zero_grad()
         loss.backward()
-        optimizer.step()
 
-        total_loss += loss.item()
+        if (i + 1) % accumulation_steps == 0:
+            optimizer.step()
+            optimizer.zero_grad()
+
+        total_loss += loss.item() * accumulation_steps
 
         # Optimise memory usage
         del loss, preds

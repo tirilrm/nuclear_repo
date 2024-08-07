@@ -9,8 +9,8 @@ import pandas as pd
 import pickle
 import time
 
-first = 500
-last = 1000
+first = 1000
+last = first + 500
 
 class KnowledgeExtractor():
     def __init__(self, model_name, custom_keywords):
@@ -250,10 +250,10 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    for i in range(first, last):
+    for i in range(first, min(last, len(articles))):
 
         if i % 10 == 0:
-            print(f"{((i-first)/length)*100:.2f}% finished.")
+            print(f"Articles {first} through {last} {((i-first)/length)*100:.2f}% finished.")
 
         instance = articles.iloc[i]
         url = instance['url']
