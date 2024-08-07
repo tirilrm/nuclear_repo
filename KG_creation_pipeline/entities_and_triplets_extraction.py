@@ -10,6 +10,9 @@ import importlib
 import pickle
 import time
 
+first = 0
+last = 1
+
 class KnowledgeExtractor():
     def __init__(self, model_name, custom_keywords):
         self.model_name = model_name
@@ -47,24 +50,27 @@ class KnowledgeExtractor():
 
         return extracted_triplets
 
-    def extract_relik_triplets(self, sents, url):
+    def extract_relik_triplets(self, sents, url, i):
 
         try:
             relik_out: RelikOutput = self.relik(sents)
             return self.process_relik_output(relik_out)
-        except IndexError:
+        except IndexError as e:
             print(f"IndexError for URL: {url}")
-            extracted_triplets = []
             self.untreated_articles.append({
+                'idx': i,
                 'url': url,
-                'sents': sents
+                'sents': sents,
+                'error': str(e),
             })
             return []
         except Exception as e  :
             print(f"Exception for URL: {url}, Exception: {e}") 
             self.untreated_articles.append({
+                'idx': i,
                 'url': url,
-                'sents': sents
+                'sents': sents,
+                'error': str(e)
             })
             return []
 
@@ -241,11 +247,11 @@ if __name__ == "__main__":
     extractor = KnowledgeExtractor('dslim/bert-base-NER', keywords)
 
     output = []
-    length = len(articles)
+    length = last - first
 
     start = time.time()
 
-    for i in range(1):
+    for i in range(first, last):
 
         if i % 10 == 0:
             print(f"{(i/length)*100:.2f}% finished.")
@@ -254,18 +260,19 @@ if __name__ == "__main__":
         url = instance['url']
         sents = instance['text']
         entities = extractor.extract_entities(sents)
-        triplets = extractor.extract_relik_triplets(sents, url)
+        triplets = extractor.extract_relik_triplets(sents, url, i)
         if triplets:
             output.append({
+                'idx': i,
                 'url': url,
                 'triplets': triplets,
                 'entities': entities
             })
 
-    with open('entities_and_triplets.json', 'w') as f:
+    with open(f'data/TESTentities_and_triplets_{first}_{last}.json', 'w') as f:
         json.dump(output, f, ensure_ascii=False, indent=4)
 
-    with open('untreated_articles.json', 'w') as f:
+    with open(f'unused/TESTuntreated_articles_{first}_{last}.json', 'w') as f:
         json.dump(extractor.untreated_articles, f, ensure_ascii=False, indent=4)
 
     end = time.time()
