@@ -6,12 +6,11 @@ from dataclasses import asdict
 
 import json
 import pandas as pd
-import importlib
 import pickle
 import time
 
-first = 0
-last = 1
+first = 500
+last = 1000
 
 class KnowledgeExtractor():
     def __init__(self, model_name, custom_keywords):
@@ -254,7 +253,7 @@ if __name__ == "__main__":
     for i in range(first, last):
 
         if i % 10 == 0:
-            print(f"{(i/length)*100:.2f}% finished.")
+            print(f"{((i-first)/length)*100:.2f}% finished.")
 
         instance = articles.iloc[i]
         url = instance['url']
