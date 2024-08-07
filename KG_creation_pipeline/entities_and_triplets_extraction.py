@@ -268,10 +268,10 @@ if __name__ == "__main__":
                 'entities': entities
             })
 
-    with open(f'data/TESTentities_and_triplets_{first}_{last}.json', 'w') as f:
+    with open(f'data/entities_and_triplets_{first}_{last}.json', 'w') as f:
         json.dump(output, f, ensure_ascii=False, indent=4)
 
-    with open(f'unused/TESTuntreated_articles_{first}_{last}.json', 'w') as f:
+    with open(f'unused/untreated_articles_{first}_{last}.json', 'w') as f:
         json.dump(extractor.untreated_articles, f, ensure_ascii=False, indent=4)
 
     end = time.time()
