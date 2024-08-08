@@ -9,7 +9,7 @@ import pandas as pd
 import pickle
 import time
 
-first = 3000
+first = 3500
 last = first + 500
 
 class KnowledgeExtractor():
@@ -246,16 +246,17 @@ if __name__ == "__main__":
     extractor = KnowledgeExtractor('dslim/bert-base-NER', keywords)
 
     output = []
-    length = last - first
+    actual_last = min(last, len(articles))
+    length = actual_last - first
 
     start = time.time()
     
     print(f"Starting extraction. Total article length: {len(articles)}.")
     
-    for i in range(first, min(last, len(articles))):
+    for i in range(first, actual_last):
 
         if i % 10 == 0:
-            print(f"Articles {first} through {last} {((i-first)/length)*100:.2f}% finished.")
+            print(f"Articles {first} through {actual_last} {((i-first)/length)*100:.2f}% finished.")
 
         instance = articles.iloc[i]
         url = instance['url']
@@ -270,10 +271,10 @@ if __name__ == "__main__":
                 'entities': entities
             })
 
-    with open(f'data/entities_and_triplets_{first}_{last}.json', 'w') as f:
+    with open(f'data/entities_and_triplets_{first}_{actual_last}.json', 'w') as f:
         json.dump(output, f, ensure_ascii=False, indent=4)
 
-    with open(f'unused/untreated_articles_{first}_{last}.json', 'w') as f:
+    with open(f'unused/untreated_articles_{first}_{actual_last}.json', 'w') as f:
         json.dump(extractor.untreated_articles, f, ensure_ascii=False, indent=4)
 
     end = time.time()
