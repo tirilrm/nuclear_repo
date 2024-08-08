@@ -9,7 +9,7 @@ import pandas as pd
 import pickle
 import time
 
-first = 1000
+first = 1500
 last = first + 500
 
 class KnowledgeExtractor():
