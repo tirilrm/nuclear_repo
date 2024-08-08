@@ -244,13 +244,14 @@ if __name__ == "__main__":
         keywords = pickle.load(file)
 
     extractor = KnowledgeExtractor('dslim/bert-base-NER', keywords)
-    print(f"Total article length: {len(articles)}.")
 
     output = []
     length = last - first
 
     start = time.time()
-
+    
+    print(f"Starting extraction. Total article length: {len(articles)}.")
+    
     for i in range(first, min(last, len(articles))):
 
         if i % 10 == 0:
@@ -261,7 +262,7 @@ if __name__ == "__main__":
         sents = instance['text']
         entities = extractor.extract_entities(sents)
         triplets = extractor.extract_relik_triplets(sents, url, i)
-        if triplets:
+        if triplets: # NOTE: this condition means we omit all articles WITHOUT any triplets extracted which caused no errors.
             output.append({
                 'idx': i,
                 'url': url,
