@@ -9,7 +9,7 @@ import pandas as pd
 import pickle
 import time
 
-first = 2000
+first = 2500
 last = first + 500
 
 class KnowledgeExtractor():
@@ -244,6 +244,7 @@ if __name__ == "__main__":
         keywords = pickle.load(file)
 
     extractor = KnowledgeExtractor('dslim/bert-base-NER', keywords)
+    print(f"Total article length: {len(articles)}.")
 
     output = []
     length = last - first

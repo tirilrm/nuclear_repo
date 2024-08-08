@@ -158,15 +158,19 @@ for epoch in range(num_epochs):
         break
 
     model.train()
+    print('e')
     total_loss = 0
     optimizer.zero_grad()
+    print('f')
 
     for i, batch in enumerate(train_loader):
+        print('g')
         text_embeddings = batch['text_embeddings'].to(device)
         pair_embeddings = batch['pair_embeddings'].to(device)
         triplet_embeddings = batch['triplet_embeddings'].to(device)
 
         # Forward pass
+        print('h')
         preds = model(text_embeddings, pair_embeddings) # shape [batch_size, num_pairs]
         # Calculate loss
         loss = loss_fn(pair_embeddings, preds, triplet_embeddings)
